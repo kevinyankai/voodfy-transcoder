@@ -78,7 +78,7 @@ $ REDIS_BROKER="localhost:6379" REDIS_RESULT="localhost:6379" voodfycli add loca
 
 Voodfy transcoder installation involves running external dependencies, and wiring them correctly with Filecoin/Lotus IPFS and Powergate.
 
-Please copy the `conf/app.ini` example hosted in this repository
+Please copy the `example_conf/app.ini` example hosted in this repository creating a folder called with app.ini inside `conf/app.ini`
 
 ### External dependencies
 Powergate needs external dependencies in order to provide full functionality, in particular a synced Filecoin client and a IPFS node and a Redis running.
