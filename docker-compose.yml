@@ -1,0 +1,46 @@
+version: '3'
+services:
+  transcoder:
+    image: voodfy/transcoder:latest
+    volumes:
+      - ./logs:/app/logs
+      - ./conf:/app/conf
+      - /tmp/:/tmp/
+    depends_on:
+      - redis
+      - ipfs
+    stdin_open: true
+    tty: true
+
+  redis:
+    container_name: 'redis'
+    image: 'redis:latest'
+    ports:
+      - '6379:6379'
+    expose:
+      - 6379
+    volumes:
+      - 'redisdata:/data'
+
+  ipfs:
+    container_name: 'ipfs'
+    image: ipfs/go-ipfs:latest
+    ports:
+      - "4001:4001" # ipfs swarm - expose if needed/wanted
+      - "4003:4003" # ipfs ws - expose if needed/wanted
+      - "5001:5001" # ipfs api - expose if needed/wanted
+      - "8080:8080" # ipfs gateway - expose if needed/wanted
+    volumes:
+      - /tmp/:/tmp/
+
+  influxdb:
+    image: appcelerator/influxdb:latest
+    ports:
+      - 8086:8086
+    environment:
+      - PRE_CREATE_DB="metrics"
+
+
+
+volumes:
+  redisdata:
