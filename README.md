@@ -64,6 +64,16 @@ GLOBAL OPTIONS:
 
 ```
 
+## Example
+
+Adding a video inside a folder called /tmp/5f07cca0e64d1e3d92544425/55c6659d3df67bd98c0c2a53f645305d/mountains.mp4
+
+```
+
+$ REDIS_BROKER="localhost:6379" REDIS_RESULT="localhost:6379" voodfycli add local teste mountains.mp4 5f07cca0e64d1e3d92544425 55c6659d3df67bd98c0c2a53f645305d
+
+```
+
 ## Installation
 
 Voodfy transcoder installation involves running external dependencies, and wiring them correctly with Filecoin/Lotus IPFS and Powergate.
