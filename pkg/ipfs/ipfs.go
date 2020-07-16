@@ -10,6 +10,7 @@ import (
 	"time"
 
 	ipfsapi "github.com/RTradeLtd/go-ipfs-api"
+	shell "github.com/RTradeLtd/go-ipfs-api"
 )
 
 // IPFS ipfs interface to abstract the manager
@@ -199,4 +200,17 @@ func (im *IpfsManager) Refs(hash string, recursive, unique bool) ([]string, erro
 		references = append(references, ref)
 	}
 	return references, nil
+}
+
+// List is used to list all cid from a directory cid
+func (im *IpfsManager) List(cid string) ([]*shell.LsLink, error) {
+	var out struct{ Objects []shell.LsObject }
+	err := im.Shell.Request("ls", cid).Exec(context.Background(), &out)
+	if err != nil {
+		return nil, err
+	}
+	if len(out.Objects) != 1 {
+		return nil, errors.New("bad response from server")
+	}
+	return out.Objects[0].Links, nil
 }

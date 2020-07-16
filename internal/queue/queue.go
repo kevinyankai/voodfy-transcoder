@@ -58,9 +58,7 @@ func NewWorker() *machinery.Worker {
 
 	posttaskhandler := func(signature *tasks.Signature) {
 		finished = time.Since(start).Seconds()
-
 		influx.Send(signature.UUID, signature.Name, fmt.Sprintf("%f", finished))
-
 		logging.Info(fmt.Sprintf("I am an end of task handler for: %s", signature.Name))
 	}
 
