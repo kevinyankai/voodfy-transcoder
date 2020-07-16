@@ -7,6 +7,7 @@ import (
 
 	"github.com/Voodfy/voodfy-transcoder/internal/ffmpeg"
 	"github.com/Voodfy/voodfy-transcoder/internal/logging"
+	"github.com/Voodfy/voodfy-transcoder/internal/models"
 	"github.com/Voodfy/voodfy-transcoder/internal/settings"
 	"github.com/Voodfy/voodfy-transcoder/internal/utils"
 	ipfsManager "github.com/Voodfy/voodfy-transcoder/pkg/ipfs"
@@ -97,24 +98,39 @@ func RenditionTask(args ...string) error {
 }
 
 // SendDirToIPFSTask send final directory to ipfs
-func SendDirToIPFSTask(args ...string) error {
+func SendDirToIPFSTask(args ...string) (string, error) {
 	var bucket = settings.ServerSetting.BucketMount
 	dstFiles := fmt.Sprintf("%s%s/%s/%s_ipfs", bucket, args[0], args[1], args[2])
 	mg, err := ipfsManager.NewManager(settings.IPFSSetting.Gateway)
 	logging.Info("Gateway ~>", mg.NodeAddress())
+
 	if err != nil {
 		utils.SendError("ipfsManager.NewManager", err)
 	}
+
 	// send the directory to ipfs
 	cid, err := mg.AddDir(dstFiles)
-	logging.Info("cid -> ", cid)
+
 	if err != nil {
 		utils.SendError("mg.AddDir", err)
 	}
-	if err != nil {
-		utils.SendError("cVoodfyAPI.UpdateCIDVideoByResourceID", err)
+
+	directory := models.Directory{
+		CID: cid,
+		ID:  args[2],
 	}
-	return nil
+
+	cids, err := mg.List(cid)
+	for _, c := range cids {
+		resource := models.Resource{
+			ID:   utils.EncodeMD5(c.Hash),
+			Name: c.Name,
+			CID:  c.Hash,
+		}
+		directory.Resources = append(directory.Resources, resource)
+	}
+	directory.Save()
+	return cid, err
 }
 
 // LongRunningTask ...

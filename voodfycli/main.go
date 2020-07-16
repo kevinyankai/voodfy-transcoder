@@ -7,8 +7,8 @@ import (
 
 	"github.com/RichardKnop/machinery/v1"
 	"github.com/RichardKnop/machinery/v1/config"
+	"github.com/Voodfy/voodfy-transcoder/internal/models"
 	"github.com/Voodfy/voodfy-transcoder/internal/task"
-	"github.com/Voodfy/voodfy-transcoder/voodfycli/tasks"
 	"github.com/urfave/cli"
 )
 
@@ -57,13 +57,36 @@ func main() {
 			Aliases: []string{"a"},
 			Usage:   "add a video to transcode",
 			Action: func(c *cli.Context) error {
-				if c.Args().Get(0) == "livepeer" {
-					tasks.LivepeerChain(c.Args().Get(1), c.Args().Get(2), c.Args().Get(3), c.Args().Get(4), server)
+				task.ManagerTranscoder(c.Args().Get(0), c.Args().Get(1), c.Args().Get(2),
+					c.Args().Get(3), c.Args().Get(4), server)
+				return nil
+			},
+		},
+		{
+			Name:    "ipfs",
+			Aliases: []string{"ipfs"},
+			Usage:   "send the result video transcoded to IPFS",
+			Action: func(c *cli.Context) error {
+				task.ManagerIPFS(
+					c.Args().Get(0),
+					c.Args().Get(1), c.Args().Get(2), server)
+				return nil
+			},
+		},
+		{
+			Name:    "directory",
+			Aliases: []string{"dt"},
+			Usage:   "get a directory giving the resource id",
+			Action: func(c *cli.Context) error {
+				directory := models.Directory{
+					ID: c.Args().Get(0),
 				}
-				if c.Args().Get(0) == "local" {
-					tasks.Local(c.Args().Get(1), c.Args().Get(2), c.Args().Get(3), c.Args().Get(4), server)
+				directory.Get()
+				log.Println("Directory:", directory.ID)
+				for _, r := range directory.Resources {
+					log.Println("Resource:", r)
 				}
-				fmt.Println("added video: ", c.Args().First())
+
 				return nil
 			},
 		},
@@ -72,7 +95,7 @@ func main() {
 			Aliases: []string{"p"},
 			Usage:   "ping the queue",
 			Action: func(c *cli.Context) error {
-				tasks.Ping(*server)
+				task.Ping(*server)
 				return nil
 			},
 		},
