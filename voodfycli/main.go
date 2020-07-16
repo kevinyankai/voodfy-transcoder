@@ -9,6 +9,7 @@ import (
 	"github.com/RichardKnop/machinery/v1/config"
 	"github.com/Voodfy/voodfy-transcoder/internal/models"
 	"github.com/Voodfy/voodfy-transcoder/internal/task"
+	"github.com/Voodfy/voodfy-transcoder/pkg/powergate"
 	"github.com/urfave/cli"
 )
 
@@ -46,12 +47,25 @@ func init() {
 }
 
 func main() {
+	var id string
+	var token string
+	var err error
+
 	server, err := startServer()
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	app.Commands = []cli.Command{
+		{
+			Name:    "init",
+			Aliases: []string{"a"},
+			Usage:   "init the default configurations",
+			Action: func(c *cli.Context) error {
+				id, token, err = powergate.FFSCreate()
+				return nil
+			},
+		},
 		{
 			Name:    "add",
 			Aliases: []string{"a"},
@@ -86,6 +100,40 @@ func main() {
 				for _, r := range directory.Resources {
 					log.Println("Resource:", r)
 				}
+
+				return nil
+			},
+		},
+		{
+			Name:    "store_config",
+			Aliases: []string{"sc"},
+			Usage:   "show the default config at Filecoin",
+			Action: func(c *cli.Context) error {
+				id, token, err = powergate.FFSCreate()
+				powergate.FFSDefaultConfig(token)
+				return nil
+			},
+		},
+
+		{
+			Name:    "store",
+			Aliases: []string{"st"},
+			Usage:   "store the resources on Filecoin",
+			Action: func(c *cli.Context) error {
+				id, token, err = powergate.FFSCreate()
+
+				directory := models.Directory{
+					ID: c.Args().Get(0),
+				}
+				directory.Get()
+
+				for idx, r := range directory.Resources {
+					jid := powergate.FFSPush(r.CID, token)
+					r.Jid = jid
+					directory.Resources[idx] = r
+				}
+
+				directory.Save()
 
 				return nil
 			},
