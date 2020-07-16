@@ -19,6 +19,7 @@ type Resources []Resource
 // Resource struct used to bind a resource
 type Resource struct {
 	ID   string `json:"id"`
+	Jid  string `json:"jid"`
 	Name string `json:"name"`
 	CID  string `json:"cid"`
 }
@@ -61,6 +62,4 @@ func (d *Directory) Get() {
 			fmt.Printf("Unable to unmarshal data into the new example struct due to: %s \n", err)
 		}
 	}
-
-	defer db.Redis.Close()
 }
