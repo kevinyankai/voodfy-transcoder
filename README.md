@@ -24,7 +24,7 @@ To build from source, you need to have Go 1.14 or newer installed.
 Voodfy Transcoder is a queue system used on core of Voodfy to ingest videos using Livepeeer and sendding to IPFS/Filecoin using Powergate
 
 Here's a high-level overview of the main components, and how Powergate interacts with IPFS and a Filecoin client:
-![Voodfy Transcoder Design](https://s3.us-west-2.amazonaws.com/secure.notion-static.com/b0fcb3fc-8898-4c69-b38b-f21cd6c3e2f4/voodfy-transcoder.svg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAT73L2G45O3KS52Y5%2F20200712%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20200712T173057Z&X-Amz-Expires=86400&X-Amz-Signature=52f87a17aed16cd34b7c145abe8a0fffd5989360d17d8ae9212966b57b950dcd&X-Amz-SignedHeaders=host&response-content-disposition=filename%20%3D%22voodfy-transcoder.svg%22)
+![Voodfy Transcoder Design](https://github.com/Voodfy/voodfy-transcocder/blob/master/voodfy-transcoder.png)
 
 Note in the diagram that the Lotus, Filecoin, IPFS, and Powrgate client node _doesn't need_ to be in the same host where Voodfycli is running. They can, but isn't necessary.
 
