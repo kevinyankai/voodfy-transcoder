@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"log"
 	"os"
@@ -58,11 +59,24 @@ func main() {
 
 	app.Commands = []cli.Command{
 		{
-			Name:    "init",
-			Aliases: []string{"a"},
-			Usage:   "init the default configurations",
+			Name:    "signup",
+			Aliases: []string{"s"},
+			Usage:   "setup an account at Voodfy",
 			Action: func(c *cli.Context) error {
-				id, token, err = powergate.FFSCreate()
+				pwd := task.ManagerSetupAccountVoodfy()
+				log.Println(pwd)
+				return nil
+			},
+		},
+		{
+			Name:    "login",
+			Aliases: []string{"l"},
+			Usage:   "setup an account at Voodfy",
+			Action: func(c *cli.Context) error {
+				reader := bufio.NewReader(os.Stdin)
+				fmt.Print("Enter secret hash: ")
+				pwd, _ := reader.ReadString('\n')
+				log.Println(task.ManagerLoginVoodfy(pwd))
 				return nil
 			},
 		},
