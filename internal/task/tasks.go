@@ -22,7 +22,6 @@ func Get() map[string]interface{} {
 		"thumbsPreviewGeneratorTask":      ThumbsPreviewGeneratorTask,
 		"generateImageFromFrameVideoTask": GenerateImageFromFrameVideoTask,
 		"fallbackRenditionTask":           FallbackRenditionTask,
-		"renditionTask":                   RenditionTask,
 		"sendDirToIPFSTask":               SendDirToIPFSTask,
 	}
 }

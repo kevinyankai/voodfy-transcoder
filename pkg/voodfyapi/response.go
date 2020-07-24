@@ -13,10 +13,16 @@ type Powergate struct {
 	Address    string `json:"address"`
 }
 
+// Video struct used to bind video intance
+type Video struct {
+	ID string `json:"id"`
+}
+
 // Response struct used to bind response from api
 type Response struct {
 	Result struct {
 		User      User      `json:"user"`
 		Powergate Powergate `json:"powergate"`
+		Video     Video     `json:"video"`
 	} `json:"result"`
 }

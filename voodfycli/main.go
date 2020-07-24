@@ -151,6 +151,15 @@ func main() {
 			},
 		},
 		{
+			Name:    "embed",
+			Aliases: []string{"eb"},
+			Usage:   "retrieve an embed from Voodfy",
+			Action: func(c *cli.Context) error {
+				log.Println(task.ManagerEmbedByVoodfy(c.Args().Get(0), c.Args().Get(1), c.Args().Get(2)))
+				return nil
+			},
+		},
+		{
 			Name:    "ping",
 			Aliases: []string{"p"},
 			Usage:   "ping the queue",

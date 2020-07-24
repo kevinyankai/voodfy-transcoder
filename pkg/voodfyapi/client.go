@@ -68,3 +68,24 @@ func (c *HTTPClient) Powergate(secret string, premium bool) (Powergate, error) {
 	json.Unmarshal(rsp.Body(), &response)
 	return response.Result.Powergate, err
 }
+
+// Embed do request to create a video at Voodfy
+func (c *HTTPClient) Embed(token, title, description, cid string) (Video, error) {
+	var response Response
+	c.Endpoint = "/v1/videos"
+	c.Payload = map[string]interface{}{
+		"title":       title,
+		"description": description,
+		"cid":         cid,
+		"ipfs":        fmt.Sprintf("https://ipfs.voodfy.com/ipfs/%s", cid),
+		"poster":      fmt.Sprintf("https://ipfs.voodfy.com/ipfs/%s/poster.jpg", cid),
+	}
+
+	header := map[string]string{
+		"Authorization": fmt.Sprintf("Token %s", token),
+	}
+	rsp, err := resty.R().SetHeaders(header).SetBody(c.Payload).Post(c.URL())
+
+	json.Unmarshal(rsp.Body(), &response)
+	return response.Result.Video, err
+}

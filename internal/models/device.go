@@ -67,9 +67,18 @@ func (d *Device) Update() {
 
 // Get return a device save on redis
 func (d *Device) Get() {
+	var key string
 	InitDB()
 
-	cacheData, cacheErr := db.Redis.Get(fmt.Sprintf("device_%s", d.UUID)).Result()
+	keys, _ := db.Redis.Keys("*").Result()
+
+	for _, k := range keys {
+		if strings.Contains(k, "device_") {
+			key = k
+		}
+	}
+
+	cacheData, cacheErr := db.Redis.Get(key).Result()
 
 	if cacheErr == nil {
 		if err := d.UnmarshalBinary([]byte(cacheData)); err != nil {

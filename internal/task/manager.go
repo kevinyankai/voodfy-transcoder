@@ -70,7 +70,7 @@ func ManagerSetupAccountVoodfy() string {
 
 	isCreated := device.Save()
 
-	if isCreated {
+	if !isCreated {
 		api.Payload = device.ToSignup()
 		api.Signup()
 		return fmt.Sprintf("Store with safety the secret hash %s", device.SecretHash)
@@ -106,4 +106,37 @@ func ManagerLoginVoodfy(secret string) string {
 	}
 
 	return "Logged!"
+}
+
+// ManagerEmbedByVoodfy setup an account at Voodfy
+func ManagerEmbedByVoodfy(resourceID, title, description string) string {
+
+	if len(title) == 0 || len(description) == 0 {
+		return "It's necessary to specify title and description"
+	}
+
+	api := voodfyapi.NewClient()
+	device := models.Device{}
+	device.Get()
+
+	api.Payload = device.ToSignup()
+	token, err := api.Token()
+	if err != nil {
+		utils.SendError("voodfycli.tasks.manager.ManagerEmbedByVoodfy", err)
+		return "Secret invalid, try again!"
+	}
+
+	device.Token = token
+	device.Update()
+
+	directory := models.Directory{ID: resourceID}
+	directory.Get()
+
+	video, err := api.Embed(token, title, description, directory.CID)
+
+	if err != nil {
+		utils.SendError("voodfycli.tasks.manager.ManagerLoginVoodfy", err)
+	}
+
+	return fmt.Sprintf("https://embed.voodfy.com/%s", video.ID)
 }
