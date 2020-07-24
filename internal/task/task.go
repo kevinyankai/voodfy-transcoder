@@ -2,6 +2,7 @@ package task
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"time"
 
@@ -42,65 +43,29 @@ func ExtractAudioFromMp4Task(args ...string) error {
 	return nil
 }
 
-// StandardFallbackTask ...
-func StandardFallbackTask(args ...string) error {
-	ffmpeg.Run(&cl, "StandardFallback", args...)
-
-	return nil
-}
-
-// MidDefinitionFallbackTask ...
-func MidDefinitionFallbackTask(args ...string) error {
-	ffmpeg.Run(&cl, "MidDefinitionFallback", args...)
-
-	return nil
-}
-
-// HDFallBackTask ...
-func HDFallBackTask(args ...string) error {
-	ffmpeg.Run(&cl, "HDFallBackTask", args...)
-
-	return nil
-}
-
-// FullHDFallbackTask ...
-func FullHDFallbackTask(args ...string) error {
-	ffmpeg.Run(&cl, "FullHDFallbackTask", args...)
-
-	return nil
-}
-
-// LowDefinitionTask ...
-func LowDefinitionTask(args ...string) error {
-	ffmpeg.Run(&cl, "LowDefinition", args...)
-
+// FallbackRenditionTask ...
+func FallbackRenditionTask(args ...string) error {
+	ffmpeg.Run(&cl, args[2], args...)
 	return nil
 }
 
 // RenditionTask will send and receive the chunck transcoded by livepeer
 func RenditionTask(args ...string) error {
-	var bucket = settings.ServerSetting.BucketMount
-
 	client := livepeer.NewClient("")
-	srcFile := fmt.Sprintf("%s%s/%s/%s_without_audio.mp4", bucket, args[0], args[1], args[2])
-	dstFiles := fmt.Sprintf("%s%s/%s/%s_ipfs", bucket, args[0], args[1], args[2])
-	profile := fmt.Sprintf("%s%s", bucket, args[3])
 
 	if settings.AppSetting.LivepeerMode == "remote" {
-		client.PullToRemote(srcFile, dstFiles, profile, args[2])
+		client.PullToRemote(args[0], args[1], args[2], args[3])
 	} else {
-		client.PullToLocal(srcFile, dstFiles, profile, args[2])
+		client.PullToLocal(args[0], args[1], args[2], args[3])
 	}
 
-	os.Remove(fmt.Sprintf("%s/%s_source.mp4", dstFiles, args[2]))
+	os.Remove(fmt.Sprintf("%s/%s_source.mp4", args[2], args[3]))
 
 	return nil
 }
 
 // SendDirToIPFSTask send final directory to ipfs
 func SendDirToIPFSTask(args ...string) (string, error) {
-	var bucket = settings.ServerSetting.BucketMount
-	dstFiles := fmt.Sprintf("%s%s/%s/%s_ipfs", bucket, args[0], args[1], args[2])
 	mg, err := ipfsManager.NewManager(settings.IPFSSetting.Gateway)
 	logging.Info("Gateway ~>", mg.NodeAddress())
 
@@ -109,7 +74,7 @@ func SendDirToIPFSTask(args ...string) (string, error) {
 	}
 
 	// send the directory to ipfs
-	cid, err := mg.AddDir(dstFiles)
+	cid, err := mg.AddDir(args[0])
 
 	if err != nil {
 		utils.SendError("mg.AddDir", err)
@@ -117,7 +82,7 @@ func SendDirToIPFSTask(args ...string) (string, error) {
 
 	directory := models.Directory{
 		CID: cid,
-		ID:  args[2],
+		ID:  args[1],
 	}
 
 	cids, err := mg.List(cid)
@@ -136,7 +101,7 @@ func SendDirToIPFSTask(args ...string) (string, error) {
 // LongRunningTask ...
 func LongRunningTask() error {
 	for i := 0; i < 10; i++ {
-		logging.Info(fmt.Sprintf("%d", 10-i))
+		log.Println(fmt.Sprintf("%d", 10-i))
 		time.Sleep(1 * time.Second)
 	}
 	return nil
