@@ -57,3 +57,14 @@ func (c *HTTPClient) Retrieve(secret string) (string, error) {
 	json.Unmarshal(rsp.Body(), &response)
 	return response.Result.User.Device, err
 }
+
+// Powergate do request to retrieve powergate instance
+func (c *HTTPClient) Powergate(secret string, premium bool) (Powergate, error) {
+	var response Response
+	c.Endpoint = "/v1/powergate"
+
+	rsp, err := resty.R().Get(c.URL())
+
+	json.Unmarshal(rsp.Body(), &response)
+	return response.Result.Powergate, err
+}
