@@ -22,7 +22,7 @@ type Client interface {
 // NewClient return an instance of the client
 func NewClient() HTTPClient {
 	return HTTPClient{
-		BaseURL: "http://localhost:8083",
+		BaseURL: "https://publish.voodfy.com",
 	}
 }
 
