@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/RichardKnop/machinery/v1"
 	"github.com/RichardKnop/machinery/v1/backends/result"
@@ -20,11 +21,7 @@ func Get() map[string]interface{} {
 		"removeAudioFromMp4Task":          RemoveAudioFromMp4Task,
 		"thumbsPreviewGeneratorTask":      ThumbsPreviewGeneratorTask,
 		"generateImageFromFrameVideoTask": GenerateImageFromFrameVideoTask,
-		"ultraRenditionTask":              FullHDFallbackTask,
-		"hdRenditionTask":                 HDFallBackTask,
-		"midRenditionTask":                MidDefinitionFallbackTask,
-		"standardRenditionTask":           StandardFallbackTask,
-		"lowRenditionTask":                LowDefinitionTask,
+		"fallbackRenditionTask":           FallbackRenditionTask,
 		"renditionTask":                   RenditionTask,
 		"sendDirToIPFSTask":               SendDirToIPFSTask,
 	}
@@ -48,173 +45,27 @@ func Ping(server machinery.Server) {
 	}
 }
 
-// LivepeerChain send the chunks to livepeer
-func LivepeerChain(resourceID, resourceName, directory, tracker string, server *machinery.Server) {
-	removeAudioTask := tasks.Signature{
-		Name: "removeAudioFromMp4Task",
-		Args: []tasks.Arg{
-			{
-				Name:  "id",
-				Type:  "string",
-				Value: resourceID,
-			},
-			{
-				Name:  "filename",
-				Type:  "string",
-				Value: fmt.Sprintf("%s", resourceName),
-			},
-			{
-				Name:  "directory",
-				Type:  "string",
-				Value: directory,
-			},
-			{
-				Name:  "tracker",
-				Type:  "string",
-				Value: tracker,
-			},
-		},
-	}
-
-	extractAudioTask := tasks.Signature{
-		Name: "extractAudioFromMp4Task",
-		Args: []tasks.Arg{
-			{
-				Name:  "id",
-				Type:  "string",
-				Value: resourceID,
-			},
-			{
-				Name:  "filename",
-				Type:  "string",
-				Value: fmt.Sprintf("%s", resourceName),
-			},
-			{
-				Name:  "directory",
-				Type:  "string",
-				Value: directory,
-			},
-			{
-				Name:  "tracker",
-				Type:  "string",
-				Value: tracker,
-			},
-		},
-	}
-
-	generateImageFromFrameVideoTask := tasks.Signature{
-		Name: "generateImageFromFrameVideoTask",
-		Args: []tasks.Arg{
-			{
-				Name:  "id",
-				Type:  "string",
-				Value: resourceID,
-			},
-			{
-				Name:  "filename",
-				Type:  "string",
-				Value: fmt.Sprintf("%s_without_audio.mp4", resourceID),
-			},
-			{
-				Name:  "directory",
-				Type:  "string",
-				Value: directory,
-			},
-			{
-				Name:  "tracker",
-				Type:  "string",
-				Value: tracker,
-			},
-		},
-	}
-
-	thumbsPreviewTask := tasks.Signature{
-		Name: "thumbsPreviewGeneratorTask",
-		Args: []tasks.Arg{
-			{
-				Name:  "id",
-				Type:  "string",
-				Value: resourceID,
-			},
-			{
-				Name:  "filename",
-				Type:  "string",
-				Value: fmt.Sprintf("%s", resourceName),
-			},
-			{
-				Name:  "directory",
-				Type:  "string",
-				Value: directory,
-			},
-			{
-				Name:  "tracker",
-				Type:  "string",
-				Value: tracker,
-			},
-		},
-	}
-
-	livepeerTask := tasks.Signature{
-		Name: "renditionTask",
-		Args: []tasks.Arg{
-			{
-				Name:  "directory",
-				Type:  "string",
-				Value: directory,
-			},
-			{
-				Name:  "tracker",
-				Type:  "string",
-				Value: tracker,
-			},
-			{
-				Name:  "id",
-				Type:  "string",
-				Value: resourceID,
-			},
-			{
-				Name:  "profile",
-				Type:  "string",
-				Value: "ultra.json",
-			},
-		},
-	}
-
-	chain, _ := tasks.NewChain(
-		&removeAudioTask, &extractAudioTask,
-		&generateImageFromFrameVideoTask, &thumbsPreviewTask, &livepeerTask)
-
-	_, err := server.SendChain(chain)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
 // Local task to use ffmpeg
 func Local(resourceID, resourceName, directory, tracker string, server *machinery.Server) AsyncResultArray {
+	src := fmt.Sprintf("%s/%s/", directory, tracker)
+	dstFiles := fmt.Sprintf("%s%s_ipfs/", src, resourceID)
+	os.MkdirAll(dstFiles, 0777)
+
+	log.Println("input: ------->", src)
+	log.Println("oputput: ----->", dstFiles)
+
 	removeAudioTask := tasks.Signature{
 		Name: "removeAudioFromMp4Task",
 		Args: []tasks.Arg{
 			{
-				Name:  "id",
+				Name:  "input",
 				Type:  "string",
-				Value: resourceID,
+				Value: fmt.Sprintf("%s%s", src, resourceName),
 			},
 			{
-				Name:  "filename",
+				Name:  "output",
 				Type:  "string",
-				Value: fmt.Sprintf("%s", resourceName),
-			},
-			{
-				Name:  "directory",
-				Type:  "string",
-				Value: directory,
-			},
-			{
-				Name:  "tracker",
-				Type:  "string",
-				Value: tracker,
+				Value: fmt.Sprintf("%s%s_without_audio.mp4", src, resourceID),
 			},
 		},
 	}
@@ -223,24 +74,14 @@ func Local(resourceID, resourceName, directory, tracker string, server *machiner
 		Name: "extractAudioFromMp4Task",
 		Args: []tasks.Arg{
 			{
-				Name:  "id",
+				Name:  "input",
 				Type:  "string",
-				Value: resourceID,
+				Value: fmt.Sprintf("%s%s", src, resourceName),
 			},
 			{
-				Name:  "filename",
+				Name:  "output",
 				Type:  "string",
-				Value: fmt.Sprintf("%s", resourceName),
-			},
-			{
-				Name:  "directory",
-				Type:  "string",
-				Value: directory,
-			},
-			{
-				Name:  "tracker",
-				Type:  "string",
-				Value: tracker,
+				Value: fmt.Sprintf("%s%s_ipfs/%s_a1.m4a", src, resourceID, resourceID),
 			},
 		},
 	}
@@ -249,24 +90,14 @@ func Local(resourceID, resourceName, directory, tracker string, server *machiner
 		Name: "generateImageFromFrameVideoTask",
 		Args: []tasks.Arg{
 			{
-				Name:  "id",
+				Name:  "input",
 				Type:  "string",
-				Value: resourceID,
+				Value: fmt.Sprintf("%s%s_without_audio.mp4", src, resourceID),
 			},
 			{
-				Name:  "filename",
+				Name:  "output",
 				Type:  "string",
-				Value: fmt.Sprintf("%s_without_audio.mp4", resourceID),
-			},
-			{
-				Name:  "directory",
-				Type:  "string",
-				Value: directory,
-			},
-			{
-				Name:  "tracker",
-				Type:  "string",
-				Value: tracker,
+				Value: dstFiles,
 			},
 		},
 	}
@@ -275,154 +106,119 @@ func Local(resourceID, resourceName, directory, tracker string, server *machiner
 		Name: "thumbsPreviewGeneratorTask",
 		Args: []tasks.Arg{
 			{
-				Name:  "id",
+				Name:  "input",
 				Type:  "string",
-				Value: resourceID,
+				Value: fmt.Sprintf("%s%s", src, resourceName),
 			},
 			{
-				Name:  "filename",
+				Name:  "output",
 				Type:  "string",
-				Value: fmt.Sprintf("%s", resourceName),
-			},
-			{
-				Name:  "directory",
-				Type:  "string",
-				Value: directory,
-			},
-			{
-				Name:  "tracker",
-				Type:  "string",
-				Value: tracker,
+				Value: dstFiles,
 			},
 		},
 	}
 
 	lowRenditionTask := tasks.Signature{
-		Name: "lowRenditionTask",
+		Name: "fallbackRenditionTask",
 		Args: []tasks.Arg{
 			{
-				Name:  "id",
+				Name:  "input",
 				Type:  "string",
-				Value: resourceID,
+				Value: fmt.Sprintf("%s%s", src, resourceName),
 			},
 			{
-				Name:  "filename",
+				Name:  "output",
 				Type:  "string",
-				Value: fmt.Sprintf("%s_without_audio.mp4", resourceID),
+				Value: fmt.Sprintf("%s%s_v3.mp4", dstFiles, resourceID),
 			},
 			{
-				Name:  "directory",
+				Name:  "fnc",
 				Type:  "string",
-				Value: directory,
-			},
-			{
-				Name:  "tracker",
-				Type:  "string",
-				Value: tracker,
+				Value: "240p",
 			},
 		},
 	}
 
 	standardRenditionTask := tasks.Signature{
-		Name: "standardRenditionTask",
+		Name: "fallbackRenditionTask",
 		Args: []tasks.Arg{
 			{
-				Name:  "id",
+				Name:  "input",
 				Type:  "string",
-				Value: resourceID,
+				Value: fmt.Sprintf("%s%s", src, resourceName),
 			},
 			{
-				Name:  "filename",
+				Name:  "output",
 				Type:  "string",
-				Value: fmt.Sprintf("%s_without_audio.mp4", resourceID),
+				Value: fmt.Sprintf("%s%s_v4.mp4", dstFiles, resourceID),
 			},
 			{
-				Name:  "directory",
+				Name:  "fnc",
 				Type:  "string",
-				Value: directory,
-			},
-			{
-				Name:  "tracker",
-				Type:  "string",
-				Value: tracker,
+				Value: "360p",
 			},
 		},
 	}
 
 	midRenditionTask := tasks.Signature{
-		Name: "midRenditionTask",
+		Name: "fallbackRenditionTask",
 		Args: []tasks.Arg{
 			{
-				Name:  "id",
+				Name:  "input",
 				Type:  "string",
-				Value: resourceID,
+				Value: fmt.Sprintf("%s%s", src, resourceName),
 			},
 			{
-				Name:  "filename",
+				Name:  "output",
 				Type:  "string",
-				Value: fmt.Sprintf("%s_without_audio.mp4", resourceID),
+				Value: fmt.Sprintf("%s%s_v5.mp4", dstFiles, resourceID),
 			},
 			{
-				Name:  "directory",
+				Name:  "fnc",
 				Type:  "string",
-				Value: directory,
-			},
-			{
-				Name:  "tracker",
-				Type:  "string",
-				Value: tracker,
+				Value: "480p",
 			},
 		},
 	}
 
 	hdRenditionTask := tasks.Signature{
-		Name: "hdRenditionTask",
+		Name: "fallbackRenditionTask",
 		Args: []tasks.Arg{
 			{
-				Name:  "id",
+				Name:  "input",
 				Type:  "string",
-				Value: resourceID,
+				Value: fmt.Sprintf("%s%s", src, resourceName),
 			},
 			{
-				Name:  "filename",
+				Name:  "output",
 				Type:  "string",
-				Value: fmt.Sprintf("%s_without_audio.mp4", resourceID),
+				Value: fmt.Sprintf("%s%s_v6.mp4", dstFiles, resourceID),
 			},
 			{
-				Name:  "directory",
+				Name:  "fnc",
 				Type:  "string",
-				Value: directory,
-			},
-			{
-				Name:  "tracker",
-				Type:  "string",
-				Value: tracker,
+				Value: "720p",
 			},
 		},
 	}
 
 	ultraHdRenditionTask := tasks.Signature{
-		Name: "ultraRenditionTask",
+		Name: "fallbackRenditionTask",
 		Args: []tasks.Arg{
 			{
-				Name:  "id",
+				Name:  "input",
 				Type:  "string",
-				Value: resourceID,
+				Value: fmt.Sprintf("%s%s", src, resourceName),
 			},
 			{
-				Name:  "filename",
+				Name:  "output",
 				Type:  "string",
-				Value: fmt.Sprintf("%s_without_audio.mp4", resourceID),
+				Value: fmt.Sprintf("%s%s_v7.mp4", dstFiles, resourceID),
 			},
 			{
-				Name:  "directory",
+				Name:  "fnc",
 				Type:  "string",
-				Value: directory,
-			},
-			{
-				Name:  "tracker",
-				Type:  "string",
-				Value: tracker,
+				Value: "1080p",
 			},
 		},
 	}
@@ -455,19 +251,14 @@ func Local(resourceID, resourceName, directory, tracker string, server *machiner
 }
 
 // IPFSAddDir send the directory to ipfs
-func IPFSAddDir(resourceID, directory, tracker string, server *machinery.Server) *tasks.TaskState {
+func IPFSAddDir(directory, resourceID string, server *machinery.Server) *tasks.TaskState {
 	longRunningTask := tasks.Signature{
 		Name: "sendDirToIPFSTask",
 		Args: []tasks.Arg{
 			{
-				Name:  "directory",
+				Name:  "output",
 				Type:  "string",
 				Value: directory,
-			},
-			{
-				Name:  "tracker",
-				Type:  "string",
-				Value: tracker,
 			},
 			{
 				Name:  "id",
