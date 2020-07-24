@@ -42,14 +42,12 @@ func init() {
 	app = cli.NewApp()
 	app.Name = "voodfycli"
 	app.Usage = "voodfycli it is the command line interface to add task on voodfy transcoder"
-	app.Author = "Leandro Barbosa"
+	app.Author = "Voodfy"
 	app.Email = "contact@voodfy.com"
-	app.Version = "0.0.1"
+	app.Version = "0.0.2"
 }
 
 func main() {
-	var id string
-	var token string
 	var err error
 
 	server, err := startServer()
@@ -71,7 +69,7 @@ func main() {
 		{
 			Name:    "login",
 			Aliases: []string{"l"},
-			Usage:   "setup an account at Voodfy",
+			Usage:   "login at Voodfy",
 			Action: func(c *cli.Context) error {
 				reader := bufio.NewReader(os.Stdin)
 				fmt.Print("Enter secret hash: ")
@@ -96,8 +94,7 @@ func main() {
 			Usage:   "send the result video transcoded to IPFS",
 			Action: func(c *cli.Context) error {
 				task.ManagerIPFS(
-					c.Args().Get(0),
-					c.Args().Get(1), c.Args().Get(2), server)
+					c.Args().Get(0), c.Args().Get(1), server)
 				return nil
 			},
 		},
@@ -110,9 +107,15 @@ func main() {
 					ID: c.Args().Get(0),
 				}
 				directory.Get()
-				log.Println("Directory:", directory.ID)
+
+				log.Println("Directory ID:", directory.ID)
+				log.Println("Directory CID:", directory.CID)
+
 				for _, r := range directory.Resources {
-					log.Println("Resource:", r)
+					log.Println("Resource ID:", r.ID)
+					log.Println("Resource Jid:", r.Jid)
+					log.Println("Resource Name:", r.Name)
+					log.Println("Resource CID:", r.CID)
 				}
 
 				return nil
@@ -123,32 +126,27 @@ func main() {
 			Aliases: []string{"sc"},
 			Usage:   "show the default config at Filecoin",
 			Action: func(c *cli.Context) error {
-				id, token, err = powergate.FFSCreate()
+				_, token, _ := powergate.FFSCreate()
+				log.Println("token", token)
 				powergate.FFSDefaultConfig(token)
 				return nil
 			},
 		},
-
 		{
 			Name:    "store",
 			Aliases: []string{"st"},
 			Usage:   "store the resources on Filecoin",
 			Action: func(c *cli.Context) error {
-				id, token, err = powergate.FFSCreate()
-
-				directory := models.Directory{
-					ID: c.Args().Get(0),
-				}
-				directory.Get()
-
-				for idx, r := range directory.Resources {
-					jid := powergate.FFSPush(r.CID, token)
-					r.Jid = jid
-					directory.Resources[idx] = r
-				}
-
-				directory.Save()
-
+				task.ManagerPowergate(c.Args().Get(0))
+				return nil
+			},
+		},
+		{
+			Name:    "store",
+			Aliases: []string{"st"},
+			Usage:   "store the resources on Filecoin",
+			Action: func(c *cli.Context) error {
+				task.ManagerPowergate(c.Args().Get(0))
 				return nil
 			},
 		},
