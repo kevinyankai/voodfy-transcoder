@@ -12,8 +12,7 @@ test:
 	go test -short -parallel 6 -race -timeout 30m ./... 
 .PHONY: test
 
-livepeer:
-	livepeer -orchestrator -transcoder -serviceAddr 127.0.0.1:8935 -v 0 -nvidia 0
+run: 
+	docker-compose up --build -V
 
-up:
-	docker-compose up
+.PHONY: localnet
