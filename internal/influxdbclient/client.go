@@ -2,7 +2,6 @@ package influxdbclient
 
 import (
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/Voodfy/voodfy-transcoder/internal/settings"
@@ -16,7 +15,6 @@ type Influx struct {
 
 // NewClient return a instance of InfluxDB
 func NewClient() Influx {
-	log.Println(fmt.Sprintf("http://%s", settings.InfluxdbSetting.Host))
 	client := influxdb2.NewClientWithOptions(fmt.Sprintf("http://%s", settings.InfluxdbSetting.Host), settings.InfluxdbSetting.Password,
 		influxdb2.DefaultOptions().SetBatchSize(20))
 	defer client.Close()
