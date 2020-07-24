@@ -15,7 +15,6 @@ func sentry() {
 	err := st.Init(st.ClientOptions{
 		Dsn: settings.AppSetting.SentryDNS,
 	})
-	log.Println(settings.AppSetting.SentryDNS)
 	if err != nil {
 		log.Fatalf("sentry.Init: %s", err)
 	}
