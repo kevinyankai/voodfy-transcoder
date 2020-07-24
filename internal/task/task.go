@@ -3,7 +3,6 @@ package task
 import (
 	"fmt"
 	"log"
-	"os"
 	"time"
 
 	"github.com/Voodfy/voodfy-transcoder/internal/ffmpeg"
@@ -12,7 +11,6 @@ import (
 	"github.com/Voodfy/voodfy-transcoder/internal/settings"
 	"github.com/Voodfy/voodfy-transcoder/internal/utils"
 	ipfsManager "github.com/Voodfy/voodfy-transcoder/pkg/ipfs"
-	"github.com/Voodfy/voodfy-transcoder/pkg/livepeer"
 )
 
 var cl = ffmpeg.NewClient()
@@ -46,21 +44,6 @@ func ExtractAudioFromMp4Task(args ...string) error {
 // FallbackRenditionTask ...
 func FallbackRenditionTask(args ...string) error {
 	ffmpeg.Run(&cl, args[2], args...)
-	return nil
-}
-
-// RenditionTask will send and receive the chunck transcoded by livepeer
-func RenditionTask(args ...string) error {
-	client := livepeer.NewClient("")
-
-	if settings.AppSetting.LivepeerMode == "remote" {
-		client.PullToRemote(args[0], args[1], args[2], args[3])
-	} else {
-		client.PullToLocal(args[0], args[1], args[2], args[3])
-	}
-
-	os.Remove(fmt.Sprintf("%s/%s_source.mp4", args[2], args[3]))
-
 	return nil
 }
 

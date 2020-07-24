@@ -33,7 +33,6 @@ type Commands interface {
 	ThumbsPreviewGenerator(string, string, string) bool
 	VTTGenerator(string, string, string) bool
 	ExtractAudioFromMp4(string, string) bool
-	SplitMp4IntoChunks(string, string) bool
 	CheckIntegrityFromMp4s(string, string) bool
 }
 
@@ -493,32 +492,6 @@ func (c *Client) ExtractAudioFromMp4(filename, dstFile string) bool {
 		return false
 	}
 
-	return true
-}
-
-// SplitMp4IntoChunks generate chunck parts of mp4
-func (c *Client) SplitMp4IntoChunks(filename, dstFile string) bool {
-	var stdBuffer bytes.Buffer
-	os.MkdirAll(fmt.Sprintf("%schunks", dstFile), 0777)
-	os.MkdirAll(fmt.Sprintf("%schunks_livepeer", dstFile), 0777)
-
-	cmd := exec.Command("ffmpeg", "-hide_banner", "-y", "-i", filename, "-acodec", "aac", "-f", "segment", "-vcodec", "copy", "-reset_timestamps", "0", "-map", "0", fmt.Sprintf("%schunks/%s", dstFile, "output%03d.mp4"))
-
-	mw := io.MultiWriter(os.Stdout, &stdBuffer)
-	cmd.Stdout = mw
-	cmd.Stderr = mw
-
-	err := cmd.Start()
-	if err != nil {
-		utils.SendError(fmt.Sprintf("SplitMp4IntoChunks-cmd.Start() failed with '%s'\n", err), err)
-		return false
-	}
-
-	err = cmd.Wait()
-	if err != nil {
-		utils.SendError(fmt.Sprintf("SplitMp4IntoChunks-cmd.Run() failed with %s\n", err), err)
-		return false
-	}
 	return true
 }
 
