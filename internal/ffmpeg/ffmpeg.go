@@ -9,9 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"strconv"
-	"strings"
 
-	"github.com/Voodfy/voodfy-transcoder/internal/settings"
 	"github.com/Voodfy/voodfy-transcoder/internal/utils"
 )
 
@@ -22,32 +20,25 @@ var (
 
 // Commands interface from ffmpeg
 type Commands interface {
-	RemoveAudioFromMP4(string, string, string) bool
-	GenerateImageFromFrameVideo(string, string, string, string) bool
-	GenerateWebpFromFrameVideo(string, string, string, string) bool
-	LowDefinition(string, string, string) bool
-	Transcode240p(string, string, string) bool
-	Transcode360p(string, string, string) bool
-	Transcode480p(string, string, string) bool
-	Transcode720p(string, string, string) bool
-	Transcode1080p(string, string, string) bool
-	ThumbsPreviewGenerator(string, string, string, string) bool
-	VTTGenerator(string, string, string, string) bool
-	ExtractAudioFromMp4(string, string, string) bool
-	SplitMp4IntoChunks(string, string, string) bool
+	RemoveAudioFromMP4(string, string) bool
+	GenerateImageFromFrameVideo(string, string, string) bool
+	GenerateWebpFromFrameVideo(string, string, string) bool
+	Transcode90p(string, string) bool
+	Transcode144p(string, string) bool
+	Transcode240p(string, string) bool
+	Transcode360p(string, string) bool
+	Transcode480p(string, string) bool
+	Transcode720p(string, string) bool
+	Transcode1080p(string, string) bool
+	ThumbsPreviewGenerator(string, string, string) bool
+	VTTGenerator(string, string, string) bool
+	ExtractAudioFromMp4(string, string) bool
+	SplitMp4IntoChunks(string, string) bool
 	CheckIntegrityFromMp4s(string, string) bool
 }
 
 // Client instance of ffmpeg
-type Client struct {
-	ID       string `json:"id"`
-	Filename string `json:"filename"`
-	User     string `json:"user"`
-	Tracker  string `json:"tracker"`
-	Position string `json:"position"`
-	Duration string `json:"duration"`
-	Language string `json:"language"`
-}
+type Client struct{}
 
 // Specification struct to save info provided by ffprobe
 type Specification struct {
@@ -133,85 +124,33 @@ func NewClient() (c Client) {
 	return Client{}
 }
 
-func getSrc(args ...string) (srcFile string) {
-	var filename string
-	var bucket = settings.ServerSetting.BucketMount
-
-	filename = strings.Split(args[1], ".mp4")[0]
-	srcFile = fmt.Sprintf("%s%s/%s/%s", bucket, args[2], args[3], filename)
-	return
-}
-
-func getDst(args ...string) (dstFile string) {
-	var bucket = settings.ServerSetting.BucketMount
-
-	dstFile = fmt.Sprintf("%s%s/%s/", bucket, args[2], args[3])
-	return
-}
-
-func getSourceIPFS(args ...string) (dstFile string) {
-	var bucket = settings.ServerSetting.BucketMount
-
-	dstFile = fmt.Sprintf("%s%s/%s/%s_ipfs/", bucket, args[2], args[3], args[0])
-	os.MkdirAll(dstFile, 0777)
-	return
-}
-
-// GetID return the id of the instance
-func (c *Client) GetID() string {
-	return c.ID
-}
-
 // Run execute the ffmpeg job
 func Run(cmd Commands, fnc string, args ...string) bool {
 	switch fnc {
 	case "RemoveAudioFromMp4":
-		srcFile := getSrc(args...)
-		dstFile := getDst(args...)
-		filename := fmt.Sprintf("%s.mp4", srcFile)
-		return cmd.RemoveAudioFromMP4(filename, dstFile, args[0])
+		return cmd.RemoveAudioFromMP4(args[0], args[1])
 	case "ThumbsPreviewGenerator":
-		srcFile := getSrc(args...)
-		dstFile := getSourceIPFS(args...)
-		r, _ := Execute(fmt.Sprintf("%s", srcFile))
-		filename := fmt.Sprintf("%s.mp4", srcFile)
-		return cmd.ThumbsPreviewGenerator(filename, dstFile, args[0], r.Format.Duration)
+		r, _ := Execute(args[0])
+		return cmd.ThumbsPreviewGenerator(args[0], args[1], r.Format.Duration)
 	case "GenerateImageFromFrameVideo":
-		srcFile := getSrc(args...)
-		dstFile := getSourceIPFS(args...)
-		r, _ := Execute(fmt.Sprintf("%s", srcFile))
-		filename := fmt.Sprintf("%s.mp4", srcFile)
-		return cmd.GenerateImageFromFrameVideo(filename, dstFile, args[0], r.Format.Duration)
+		r, _ := Execute(args[0])
+		return cmd.GenerateImageFromFrameVideo(args[0], args[1], r.Format.Duration)
 	case "ExtractAudioFromMp4":
-		srcFile := getSrc(args...)
-		dstFile := getSourceIPFS(args...)
-		return cmd.ExtractAudioFromMp4(srcFile, dstFile, args[0])
-	case "LowDefinition":
-		srcFile := getSrc(args...)
-		dstFile := getSourceIPFS(args...)
-		filename := fmt.Sprintf("%s.mp4", srcFile)
-		return cmd.LowDefinition(filename, dstFile, args[0])
-	case "StandardFallback":
-		srcFile := getSrc(args...)
-		dstFile := getSourceIPFS(args...)
-		filename := fmt.Sprintf("%s.mp4", srcFile)
-		cmd.Transcode240p(filename, dstFile, args[0])
-		return cmd.Transcode360p(filename, dstFile, args[0])
-	case "MidDefinitionFallbackTask":
-		srcFile := getSrc(args...)
-		dstFile := getSourceIPFS(args...)
-		filename := fmt.Sprintf("%s.mp4", srcFile)
-		return cmd.Transcode480p(filename, dstFile, args[0])
-	case "HDFallBackTask":
-		srcFile := getSrc(args...)
-		dstFile := getSourceIPFS(args...)
-		filename := fmt.Sprintf("%s.mp4", srcFile)
-		return cmd.Transcode720p(filename, dstFile, args[0])
-	case "FullHDFallbackTask":
-		srcFile := getSrc(args...)
-		dstFile := getSourceIPFS(args...)
-		filename := fmt.Sprintf("%s.mp4", srcFile)
-		return cmd.Transcode1080p(filename, dstFile, args[0])
+		return cmd.ExtractAudioFromMp4(args[0], args[1])
+	case "90p":
+		cmd.Transcode90p(args[0], args[1])
+	case "144p":
+		cmd.Transcode144p(args[0], args[1])
+	case "240p":
+		cmd.Transcode240p(args[0], args[1])
+	case "360p":
+		cmd.Transcode360p(args[0], args[1])
+	case "480p":
+		cmd.Transcode480p(args[0], args[1])
+	case "720p":
+		cmd.Transcode720p(args[0], args[1])
+	case "1080p":
+		cmd.Transcode1080p(args[0], args[1])
 	}
 	return false
 }
@@ -219,7 +158,7 @@ func Run(cmd Commands, fnc string, args ...string) bool {
 // ExecCmd exec ffprobe command and return result of json.
 func ExecCmd(fileName string) ([]byte, error) {
 	return exec.Command("ffprobe",
-		"-v", "quiet", "-print_format", "json", "-show_format", "-show_streams", fmt.Sprintf("%s.mp4", fileName)).Output()
+		"-v", "quiet", "-print_format", "json", "-show_format", "-show_streams", fileName).Output()
 }
 
 // Execute exec command and bind result to struct.
@@ -238,10 +177,10 @@ func Execute(fileName string) (r Specification, err error) {
 }
 
 // RemoveAudioFromMP4 generate a mp4 without audion
-func (c *Client) RemoveAudioFromMP4(filename, dstFile, id string) bool {
+func (c *Client) RemoveAudioFromMP4(filename, dstFile string) bool {
 	var stdBuffer bytes.Buffer
 
-	cmd := exec.Command("ffmpeg", "-hide_banner", "-y", "-i", filename, "-c", "copy", "-an", fmt.Sprintf("%s%s_without_audio.mp4", dstFile, id))
+	cmd := exec.Command("ffmpeg", "-hide_banner", "-y", "-i", filename, "-c", "copy", "-an", dstFile)
 	mw := io.MultiWriter(os.Stdout, &stdBuffer)
 	cmd.Stdout = mw
 	cmd.Stderr = mw
@@ -261,7 +200,7 @@ func (c *Client) RemoveAudioFromMP4(filename, dstFile, id string) bool {
 }
 
 // GenerateImageFromFrameVideo generate a jpg from mp4
-func (c *Client) GenerateImageFromFrameVideo(filename, dstFile, id, duration string) bool {
+func (c *Client) GenerateImageFromFrameVideo(filename, dstFile, duration string) bool {
 	var stdBuffer bytes.Buffer
 	var position string
 	position = "00:00:01"
@@ -292,7 +231,7 @@ func (c *Client) GenerateImageFromFrameVideo(filename, dstFile, id, duration str
 }
 
 // GenerateWebpFromFrameVideo generate a jpg from mp4
-func (c *Client) GenerateWebpFromFrameVideo(filename, dstFile, id, duration string) bool {
+func (c *Client) GenerateWebpFromFrameVideo(filename, dstFile, duration string) bool {
 	var stdBuffer bytes.Buffer
 	var position string
 	position = "00:00:01"
@@ -323,11 +262,36 @@ func (c *Client) GenerateWebpFromFrameVideo(filename, dstFile, id, duration stri
 	return true
 }
 
-// LowDefinition low definition
-func (c *Client) LowDefinition(filename, dstFile, id string) bool {
+// Transcode90p low definition
+func (c *Client) Transcode90p(filename, dstFile string) bool {
 	var stdBuffer bytes.Buffer
 
-	cmd := exec.Command("ffmpeg", "-hide_banner", "-y", "-i", filename, "-movflags", "faststart", "-vf", "scale='-2:90'", "-c:v", "h264", "-profile:v", "main", "-crf", "20", "-sc_threshold", "0", "-g", "48", "-keyint_min", "48", "-b:v", "100k", "-an", fmt.Sprintf("%s%s_v1.mp4", dstFile, id), "-vf", "scale='-2:144'", "-c:v", "h264", "-profile:v", "main", "-crf", "20", "-sc_threshold", "0", "-g", "48", "-keyint_min", "48", "-b:v", "300k", "-an", fmt.Sprintf("%s%s_v2.mp4", dstFile, id))
+	cmd := exec.Command("ffmpeg", "-hide_banner", "-y", "-i", filename, "-movflags", "faststart", "-vf", "scale='-2:90'", "-c:v", "h264", "-profile:v", "main", "-crf", "20", "-sc_threshold", "0", "-g", "48", "-keyint_min", "48", "-b:v", "100k", "-an", dstFile)
+
+	mw := io.MultiWriter(os.Stdout, &stdBuffer)
+	cmd.Stdout = mw
+	cmd.Stderr = mw
+	err := cmd.Start()
+
+	if err != nil {
+		utils.SendError(fmt.Sprintf("cmd.Start() failed with '%s'\n", err), err)
+		return false
+	}
+
+	err = cmd.Wait()
+	if err != nil {
+		utils.SendError(fmt.Sprintf("cmd.Run() failed with %s\n", err), err)
+		return false
+	}
+
+	return true
+}
+
+// Transcode144p low definition
+func (c *Client) Transcode144p(filename, dstFile string) bool {
+	var stdBuffer bytes.Buffer
+
+	cmd := exec.Command("ffmpeg", "-hide_banner", "-y", "-i", filename, "-movflags", "faststart", "-vf", "scale='-2:90'", "-c:v", "h264", "-profile:v", "main", "-crf", "20", "-sc_threshold", "0", "-g", "48", "-keyint_min", "48", "-b:v", "100k", "-an", dstFile)
 
 	mw := io.MultiWriter(os.Stdout, &stdBuffer)
 	cmd.Stdout = mw
@@ -349,9 +313,9 @@ func (c *Client) LowDefinition(filename, dstFile, id string) bool {
 }
 
 // Transcode240p 240p
-func (c *Client) Transcode240p(filename, dstFile, id string) bool {
+func (c *Client) Transcode240p(filename, dstFile string) bool {
 	var stdBuffer bytes.Buffer
-	cmd := exec.Command("ffmpeg", "-hide_banner", "-y", "-i", filename, "-movflags", "faststart", "-vf", "scale='-2:240'", "-c:v", "h264", "-profile:v", "main", "-crf", "20", "-sc_threshold", "0", "-g", "48", "-keyint_min", "48", "-b:v", "120k", "-an", fmt.Sprintf("%s%s_v3.mp4", dstFile, id))
+	cmd := exec.Command("ffmpeg", "-hide_banner", "-y", "-i", filename, "-movflags", "faststart", "-vf", "scale='-2:240'", "-c:v", "h264", "-profile:v", "main", "-crf", "20", "-sc_threshold", "0", "-g", "48", "-keyint_min", "48", "-b:v", "120k", "-an", dstFile)
 	mw := io.MultiWriter(os.Stdout, &stdBuffer)
 	cmd.Stdout = mw
 	cmd.Stderr = mw
@@ -371,9 +335,9 @@ func (c *Client) Transcode240p(filename, dstFile, id string) bool {
 }
 
 // Transcode360p 360p
-func (c *Client) Transcode360p(filename, dstFile, id string) bool {
+func (c *Client) Transcode360p(filename, dstFile string) bool {
 	var stdBuffer bytes.Buffer
-	cmd := exec.Command("ffmpeg", "-hide_banner", "-y", "-i", filename, "-movflags", "faststart", "-vf", "scale='-2:360'", "-c:v", "h264", "-profile:v", "main", "-crf", "20", "-sc_threshold", "0", "-g", "48", "-keyint_min", "48", "-b:v", "284k", "-maxrate", "284k", "-bufsize", "568k", "-an", fmt.Sprintf("%s%s_v4.mp4", dstFile, id))
+	cmd := exec.Command("ffmpeg", "-hide_banner", "-y", "-i", filename, "-movflags", "faststart", "-vf", "scale='-2:360'", "-c:v", "h264", "-profile:v", "main", "-crf", "20", "-sc_threshold", "0", "-g", "48", "-keyint_min", "48", "-b:v", "284k", "-maxrate", "284k", "-bufsize", "568k", "-an", dstFile)
 	mw := io.MultiWriter(os.Stdout, &stdBuffer)
 	cmd.Stdout = mw
 	cmd.Stderr = mw
@@ -392,10 +356,10 @@ func (c *Client) Transcode360p(filename, dstFile, id string) bool {
 }
 
 // Transcode480p 480p
-func (c *Client) Transcode480p(filename, dstFile, id string) bool {
+func (c *Client) Transcode480p(filename, dstFile string) bool {
 	var stdBuffer bytes.Buffer
 
-	cmd := exec.Command("ffmpeg", "-hide_banner", "-y", "-i", filename, "-movflags", "faststart", "-vf", "scale='-2:480'", "-c:v", "h264", "-profile:v", "main", "-crf", "20", "-sc_threshold", "0", "-g", "48", "-keyint_min", "48", "-b:v", "341k", "-maxrate", "341k", "-bufsize", "682k", "-an", fmt.Sprintf("%s%s_v5.mp4", dstFile, id))
+	cmd := exec.Command("ffmpeg", "-hide_banner", "-y", "-i", filename, "-movflags", "faststart", "-vf", "scale='-2:480'", "-c:v", "h264", "-profile:v", "main", "-crf", "20", "-sc_threshold", "0", "-g", "48", "-keyint_min", "48", "-b:v", "341k", "-maxrate", "341k", "-bufsize", "682k", "-an", dstFile)
 	mw := io.MultiWriter(os.Stdout, &stdBuffer)
 	cmd.Stdout = mw
 	cmd.Stderr = mw
@@ -416,9 +380,9 @@ func (c *Client) Transcode480p(filename, dstFile, id string) bool {
 }
 
 // Transcode720p 720p
-func (c *Client) Transcode720p(filename, dstFile, id string) bool {
+func (c *Client) Transcode720p(filename, dstFile string) bool {
 	var stdBuffer bytes.Buffer
-	cmd := exec.Command("ffmpeg", "-hide_banner", "-y", "-i", filename, "-movflags", "faststart", "-vf", "scale='-2:720'", "-c:v", "h264", "-profile:v", "main", "-crf", "20", "-sc_threshold", "0", "-g", "48", "-keyint_min", "48", "-b:v", "765k", "-maxrate", "765k", "-bufsize", "1530k", "-an", fmt.Sprintf("%s%s_v6.mp4", dstFile, id))
+	cmd := exec.Command("ffmpeg", "-hide_banner", "-y", "-i", filename, "-movflags", "faststart", "-vf", "scale='-2:720'", "-c:v", "h264", "-profile:v", "main", "-crf", "20", "-sc_threshold", "0", "-g", "48", "-keyint_min", "48", "-b:v", "765k", "-maxrate", "765k", "-bufsize", "1530k", "-an", dstFile)
 	mw := io.MultiWriter(os.Stdout, &stdBuffer)
 	cmd.Stdout = mw
 	cmd.Stderr = mw
@@ -437,9 +401,9 @@ func (c *Client) Transcode720p(filename, dstFile, id string) bool {
 }
 
 // Transcode1080p 1080p
-func (c *Client) Transcode1080p(filename, dstFile, id string) bool {
+func (c *Client) Transcode1080p(filename, dstFile string) bool {
 	var stdBuffer bytes.Buffer
-	cmd := exec.Command("ffmpeg", "-hide_banner", "-y", "-i", filename, "-movflags", "faststart", "-vf", "scale='-2:1080'", "-c:v", "h264", "-profile:v", "main", "-crf", "20", "-sc_threshold", "0", "-g", "48", "-keyint_min", "48", "-b:v", "1579k", "-maxrate", "1579k", "-bufsize", "3158k", "-an", fmt.Sprintf("%s%s_v7.mp4", dstFile, id))
+	cmd := exec.Command("ffmpeg", "-hide_banner", "-y", "-i", filename, "-movflags", "faststart", "-vf", "scale='-2:1080'", "-c:v", "h264", "-profile:v", "main", "-crf", "20", "-sc_threshold", "0", "-g", "48", "-keyint_min", "48", "-b:v", "1579k", "-maxrate", "1579k", "-bufsize", "3158k", "-an", dstFile)
 
 	mw := io.MultiWriter(os.Stdout, &stdBuffer)
 	cmd.Stdout = mw
@@ -461,7 +425,7 @@ func (c *Client) Transcode1080p(filename, dstFile, id string) bool {
 }
 
 // ThumbsPreviewGenerator ...
-func (c *Client) ThumbsPreviewGenerator(filename, dstFile, id, duration string) bool {
+func (c *Client) ThumbsPreviewGenerator(filename, dstFile, duration string) bool {
 	var err error
 	d, err := strconv.ParseFloat(duration, 64)
 	if err != nil {
@@ -491,8 +455,8 @@ func (c *Client) ThumbsPreviewGenerator(filename, dstFile, id, duration string) 
 }
 
 // VTTGenerator ...
-func (c *Client) VTTGenerator(filename, dstFile, id, language string) bool {
-	cmd := exec.Command("ffmpeg", "-hide_banner", "-y", "-i", filename, "-f", "webvtt", fmt.Sprintf("%s%s_%s.vtt", dstFile, id, language))
+func (c *Client) VTTGenerator(filename, dstFile, language string) bool {
+	cmd := exec.Command("ffmpeg", "-hide_banner", "-y", "-i", filename, "-f", "webvtt", fmt.Sprintf("%s_%s.vtt", dstFile, language))
 
 	var stdBuffer bytes.Buffer
 	mw := io.MultiWriter(os.Stdout, &stdBuffer)
@@ -515,8 +479,8 @@ func (c *Client) VTTGenerator(filename, dstFile, id, language string) bool {
 }
 
 // ExtractAudioFromMp4 generate a m4a extracting the audio from mp4
-func (c *Client) ExtractAudioFromMp4(filename, dstFile, id string) bool {
-	cmd := exec.Command("ffmpeg", "-hide_banner", "-y", "-i", fmt.Sprintf("%s.mp4", filename), "-vn", "-acodec", "copy", fmt.Sprintf("%s/%s_a1.m4a", dstFile, id))
+func (c *Client) ExtractAudioFromMp4(filename, dstFile string) bool {
+	cmd := exec.Command("ffmpeg", "-hide_banner", "-y", "-i", filename, "-vn", "-acodec", "copy", dstFile)
 	err := cmd.Start()
 	if err != nil {
 		utils.SendError(fmt.Sprintf("ExtractAudioFromMp4-cmd.Start() failed with '%s'\n", err), err)
@@ -533,12 +497,12 @@ func (c *Client) ExtractAudioFromMp4(filename, dstFile, id string) bool {
 }
 
 // SplitMp4IntoChunks generate chunck parts of mp4
-func (c *Client) SplitMp4IntoChunks(filename, dstFile, id string) bool {
+func (c *Client) SplitMp4IntoChunks(filename, dstFile string) bool {
 	var stdBuffer bytes.Buffer
 	os.MkdirAll(fmt.Sprintf("%schunks", dstFile), 0777)
 	os.MkdirAll(fmt.Sprintf("%schunks_livepeer", dstFile), 0777)
 
-	cmd := exec.Command("ffmpeg", "-hide_banner", "-y", "-i", fmt.Sprintf("%s.mp4", filename), "-acodec", "aac", "-f", "segment", "-vcodec", "copy", "-reset_timestamps", "0", "-map", "0", fmt.Sprintf("%schunks/%s", dstFile, "output%03d.mp4"))
+	cmd := exec.Command("ffmpeg", "-hide_banner", "-y", "-i", filename, "-acodec", "aac", "-f", "segment", "-vcodec", "copy", "-reset_timestamps", "0", "-map", "0", fmt.Sprintf("%schunks/%s", dstFile, "output%03d.mp4"))
 
 	mw := io.MultiWriter(os.Stdout, &stdBuffer)
 	cmd.Stdout = mw
