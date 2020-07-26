@@ -3,14 +3,17 @@ package task
 import (
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/Voodfy/voodfy-transcoder/internal/ffmpeg"
-	"github.com/Voodfy/voodfy-transcoder/internal/logging"
 	"github.com/Voodfy/voodfy-transcoder/internal/models"
 	"github.com/Voodfy/voodfy-transcoder/internal/settings"
 	"github.com/Voodfy/voodfy-transcoder/internal/utils"
 	ipfsManager "github.com/Voodfy/voodfy-transcoder/pkg/ipfs"
+	"github.com/Voodfy/voodfy-transcoder/pkg/livepeerclient"
+	"github.com/Voodfy/voodfy-transcoder/pkg/logging"
+	"github.com/Voodfy/voodfy-transcoder/pkg/voodfyapi"
 )
 
 var cl = ffmpeg.NewClient()
@@ -47,6 +50,21 @@ func FallbackRenditionTask(args ...string) error {
 	return nil
 }
 
+// RenditionTask will send and receive the chunck transcoded by livepeer
+func RenditionTask(args ...string) error {
+	client := livepeerclient.NewClient("", args[5], args[6])
+
+	if args[7] == "remote" {
+		client.PullToRemote(args[0], args[1], args[2], args[3])
+	} else {
+		client.PullToLocal(args[0], args[1], args[2], args[3])
+	}
+
+	os.Remove(args[4])
+
+	return nil
+}
+
 // SendDirToIPFSTask send final directory to ipfs
 func SendDirToIPFSTask(args ...string) (string, error) {
 	mg, err := ipfsManager.NewManager(settings.IPFSSetting.Gateway)
@@ -61,6 +79,28 @@ func SendDirToIPFSTask(args ...string) (string, error) {
 
 	if err != nil {
 		utils.SendError("mg.AddDir", err)
+	}
+
+	cVoodfyAPI := voodfyapi.NewClient()
+	cVoodfyAPI.Endpoint = fmt.Sprintf("/v1/videos?resource=%s", args[1])
+	videoID, err := cVoodfyAPI.GetVideoByResourceID(args[1], args[2])
+
+	if err != nil {
+		utils.SendError("cVoodfyAPI.UpdateCIDVideoByResourceID", err)
+	}
+
+	cVoodfyAPI.Endpoint = fmt.Sprintf("videos?resource=%s", args[1])
+	err = cVoodfyAPI.UpdateCIDVideoByResourceID(videoID, cid, args[2])
+
+	if err != nil {
+		utils.SendError("cVoodfyAPI.UpdateCIDVideoByResourceID", err)
+	}
+
+	cVoodfyAPI.Endpoint = fmt.Sprintf("videos?resource=%s", args[1])
+	err = cVoodfyAPI.UpdatePosterVideo(videoID, cid, args[2])
+
+	if err != nil {
+		utils.SendError("cVoodfyAPI.UpdateCIDVideoByResourceID", err)
 	}
 
 	directory := models.Directory{

@@ -13,6 +13,9 @@ type Powergate struct {
 	Address    string `json:"address"`
 }
 
+// Videos struct used to bind videos
+type Videos []Video
+
 // Video struct used to bind video intance
 type Video struct {
 	ID string `json:"id"`
@@ -24,5 +27,6 @@ type Response struct {
 		User      User      `json:"user"`
 		Powergate Powergate `json:"powergate"`
 		Video     Video     `json:"video"`
+		Videos    Videos    `json:"videos"`
 	} `json:"result"`
 }

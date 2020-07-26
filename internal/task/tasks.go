@@ -9,7 +9,7 @@ import (
 	"github.com/RichardKnop/machinery/v1"
 	"github.com/RichardKnop/machinery/v1/backends/result"
 	"github.com/RichardKnop/machinery/v1/tasks"
-	"github.com/Voodfy/voodfy-transcoder/internal/logging"
+	"github.com/Voodfy/voodfy-transcoder/pkg/logging"
 	"github.com/opentracing/opentracing-go"
 )
 
@@ -22,6 +22,7 @@ func Get() map[string]interface{} {
 		"thumbsPreviewGeneratorTask":      ThumbsPreviewGeneratorTask,
 		"generateImageFromFrameVideoTask": GenerateImageFromFrameVideoTask,
 		"fallbackRenditionTask":           FallbackRenditionTask,
+		"renditionTask":                   RenditionTask,
 		"sendDirToIPFSTask":               SendDirToIPFSTask,
 	}
 }

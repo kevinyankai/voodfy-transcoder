@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"github.com/Voodfy/voodfy-transcoder/internal/logging"
+	"github.com/Voodfy/voodfy-transcoder/pkg/logging"
 	"github.com/getsentry/sentry-go"
 )
 

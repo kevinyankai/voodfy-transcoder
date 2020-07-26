@@ -6,8 +6,6 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-
-	"github.com/Voodfy/voodfy-transcoder/internal/file"
 )
 
 // Level type used to receive the level of log
@@ -46,7 +44,7 @@ func Setup() {
 	filePath := getLogFilePath()
 	fileName := getLogFileName()
 
-	F, err = file.MustOpen(fileName, filePath)
+	F, err = MustOpen(fileName, filePath)
 	if err != nil {
 		log.Fatalf("logging.Setup err: %v", err)
 	}
@@ -54,11 +52,12 @@ func Setup() {
 	logger = log.New(F, DefaultPrefix, log.LstdFlags)
 }
 
+// SetupTest generate a path to test output
 func SetupTest() {
 	var err error
 	src, _ := os.Getwd()
 
-	F, err = file.MustOpen("test.log", fmt.Sprintf("%s/logs/", src))
+	F, err = MustOpen("test.log", fmt.Sprintf("%s/logs/", src))
 	if err != nil {
 		log.Fatalf("logging.Setup err: %v", err)
 	}
