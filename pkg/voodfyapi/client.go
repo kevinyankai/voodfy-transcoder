@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/Voodfy/voodfy-transcoder/internal/settings"
 	"gopkg.in/resty.v1"
 )
 
@@ -36,41 +35,6 @@ func (c *HTTPClient) URL() string {
 func (c *HTTPClient) Post() error {
 	_, err := resty.R().SetBody(c.Payload).Post(c.URL())
 	return err
-}
-
-// GetVideoByResourceID get the video by resource id
-func (c *HTTPClient) GetVideoByResourceID(rsID, token string) (videoID string, err error) {
-	var response Response
-	header := map[string]string{
-		"Authorization": fmt.Sprintf("Token %s", token),
-	}
-	rsp, err := resty.R().SetHeaders(header).Get(c.URL())
-	json.Unmarshal(rsp.Body(), &response)
-	videoID = response.Result.Videos[0].ID
-	return
-}
-
-// UpdateCIDVideoByResourceID update the video with cid from ipfs
-func (c *HTTPClient) UpdateCIDVideoByResourceID(id, cid, token string) (err error) {
-	header := map[string]string{
-		"Authorization": fmt.Sprintf("Token %s", token),
-	}
-	c.Payload = map[string]interface{}{"cid": cid}
-	c.Endpoint = fmt.Sprintf("/v1/videos/%s/cid", id)
-	_, err = resty.R().SetBody(c.Payload).SetHeaders(header).Patch(c.URL())
-	return
-}
-
-// UpdatePosterVideo update the video poster
-func (c *HTTPClient) UpdatePosterVideo(id, cid, token string) (err error) {
-	header := map[string]string{
-		"Authorization": fmt.Sprintf("Token %s", token),
-	}
-	poster := fmt.Sprintf("%s/ipfs/%s/poster.jpg", settings.IPFSSetting.Origin, cid)
-	c.Payload = map[string]interface{}{"poster": poster}
-	c.Endpoint = fmt.Sprintf("/v1/videos/%s", id)
-	_, err = resty.R().SetBody(c.Payload).SetHeaders(header).Patch(c.URL())
-	return
 }
 
 // Token do request to get token
