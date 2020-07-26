@@ -13,7 +13,6 @@ import (
 	ipfsManager "github.com/Voodfy/voodfy-transcoder/pkg/ipfs"
 	"github.com/Voodfy/voodfy-transcoder/pkg/livepeerclient"
 	"github.com/Voodfy/voodfy-transcoder/pkg/logging"
-	"github.com/Voodfy/voodfy-transcoder/pkg/voodfyapi"
 )
 
 var cl = ffmpeg.NewClient()
@@ -79,28 +78,6 @@ func SendDirToIPFSTask(args ...string) (string, error) {
 
 	if err != nil {
 		utils.SendError("mg.AddDir", err)
-	}
-
-	cVoodfyAPI := voodfyapi.NewClient()
-	cVoodfyAPI.Endpoint = fmt.Sprintf("/v1/videos?resource=%s", args[1])
-	videoID, err := cVoodfyAPI.GetVideoByResourceID(args[1], args[2])
-
-	if err != nil {
-		utils.SendError("cVoodfyAPI.UpdateCIDVideoByResourceID", err)
-	}
-
-	cVoodfyAPI.Endpoint = fmt.Sprintf("videos?resource=%s", args[1])
-	err = cVoodfyAPI.UpdateCIDVideoByResourceID(videoID, cid, args[2])
-
-	if err != nil {
-		utils.SendError("cVoodfyAPI.UpdateCIDVideoByResourceID", err)
-	}
-
-	cVoodfyAPI.Endpoint = fmt.Sprintf("videos?resource=%s", args[1])
-	err = cVoodfyAPI.UpdatePosterVideo(videoID, cid, args[2])
-
-	if err != nil {
-		utils.SendError("cVoodfyAPI.UpdateCIDVideoByResourceID", err)
 	}
 
 	directory := models.Directory{
