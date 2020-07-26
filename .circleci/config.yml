@@ -32,7 +32,8 @@ jobs:
           # videostreaming-transcoder-1
           rsync -avzh -e "ssh -o StrictHostKeyChecking=no" main devops@206.221.179.202:/home/devops/apps/transcoder/src/
           ssh -o StrictHostKeyChecking=no devops@206.221.179.202 << EOF
-          cd /home/devops/apps/transcoder/src/ && mv main transcoder
+          cd /home/devops/apps/transcoder/src/ && mv main transcoder && cd /home/devops/
+          sh restart_transcoder.sh
           EOF
           fi
 workflows:
