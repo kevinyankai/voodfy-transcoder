@@ -4,10 +4,10 @@ import (
 	"log"
 	"time"
 
-	"github.com/Voodfy/voodfy-transcoder/internal/logging"
 	"github.com/Voodfy/voodfy-transcoder/internal/models"
 	"github.com/Voodfy/voodfy-transcoder/internal/queue"
 	"github.com/Voodfy/voodfy-transcoder/internal/settings"
+	"github.com/Voodfy/voodfy-transcoder/pkg/logging"
 	st "github.com/getsentry/sentry-go"
 )
 

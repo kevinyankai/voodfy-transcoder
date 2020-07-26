@@ -8,10 +8,10 @@ import (
 	"github.com/RichardKnop/machinery/v1/config"
 	"github.com/RichardKnop/machinery/v1/tasks"
 	"github.com/Voodfy/voodfy-transcoder/internal/influxdbclient"
-	"github.com/Voodfy/voodfy-transcoder/internal/logging"
 	"github.com/Voodfy/voodfy-transcoder/internal/settings"
 	"github.com/Voodfy/voodfy-transcoder/internal/task"
 	"github.com/Voodfy/voodfy-transcoder/internal/utils"
+	"github.com/Voodfy/voodfy-transcoder/pkg/logging"
 )
 
 func startServer() (*machinery.Server, error) {
