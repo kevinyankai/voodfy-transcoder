@@ -1,0 +1,47 @@
+
+version: 2
+jobs:
+  build:
+    docker:
+    - image: circleci/golang:1.14.2
+    environment:
+    - TEST_RESULTS: /tmp/test-results
+    steps:
+    - checkout
+    - run: mkdir -p $TEST_RESULTS
+    - run:
+        command: |
+          sudo apt-get update -y && sudo apt-get install -y ssh rsync
+    - run:
+        environment: null
+        GIN_MODE: test
+        command: |
+          trap "go test ./... > ${TEST_RESULTS}/go-test-report.xml" EXIT
+          make test | tee ${TEST_RESULTS}/go-test.out
+    - store_artifacts:
+        path: /tmp/test-results
+        destination: raw-test-output
+    - store_test_results:
+        path: /tmp/test-results
+
+    - deploy:
+        name: Deploy Master to videostreaming transcoder
+        command: |
+          if [ "${CIRCLE_BRANCH}" == "master" ]; then
+          go build -o main .
+          # videostreaming-transcoder-1
+          rsync -avzh -e "ssh -o StrictHostKeyChecking=no" main devops@206.221.179.202:/home/devops/apps/transcoder/src/
+          ssh -o StrictHostKeyChecking=no devops@206.221.179.202 << EOF
+          cd /home/devops/apps/transcoder/src/ && mv main transcoder
+          EOF
+          fi
+workflows:
+  version: 2
+  workflow:
+    jobs:
+    - build:
+        filters:
+          branches:
+            ignore:
+            - /feature-.*/
+            - /feature.*/
