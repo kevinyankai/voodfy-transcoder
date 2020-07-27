@@ -17,6 +17,13 @@ import (
 
 var cl = ffmpeg.NewClient()
 
+// FFprobeTask ...
+func FFprobeTask(args ...string) error {
+	ffmpeg.Run(&cl, "FFprobe", args...)
+
+	return nil
+}
+
 // RemoveAudioFromMp4Task ...
 func RemoveAudioFromMp4Task(args ...string) error {
 	ffmpeg.Run(&cl, "RemoveAudioFromMp4", args...)

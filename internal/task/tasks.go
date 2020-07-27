@@ -24,6 +24,7 @@ func Get() map[string]interface{} {
 		"fallbackRenditionTask":           FallbackRenditionTask,
 		"renditionTask":                   RenditionTask,
 		"sendDirToIPFSTask":               SendDirToIPFSTask,
+		"ffprobeTask":                     FFprobeTask,
 	}
 }
 
