@@ -31,20 +31,8 @@ jobs:
           go build -o main .
 
           rsync -avzh -e "ssh -o StrictHostKeyChecking=no" main devops@45.58.126.146:/home/devops/apps/voodfy/transcoder/src/
-          rsync -avzh -e "ssh -o StrictHostKeyChecking=no" main devops@18.207.133.15:/home/devops/apps/voodfy/transcoder/src/
-          rsync -avzh -e "ssh -o StrictHostKeyChecking=no" main devops@35.188.15.142:/home/devops/apps/voodfy/transcoder/src/
 
           ssh -o StrictHostKeyChecking=no devops@45.58.126.146 << EOF
-          cd /home/devops/apps/voodfy/transcoder/src/ && mv main transcoder && cd /home/devops/
-          sh deploy_voodfy_transcoder.sh
-          EOF
-
-          ssh -o StrictHostKeyChecking=no devops@18.207.133.15 << EOF
-          cd /home/devops/apps/voodfy/transcoder/src/ && mv main transcoder && cd /home/devops/
-          sh deploy_voodfy_transcoder.sh
-          EOF
-
-          ssh -o StrictHostKeyChecking=no devops@35.188.15.142 << EOF
           cd /home/devops/apps/voodfy/transcoder/src/ && mv main transcoder && cd /home/devops/
           sh deploy_voodfy_transcoder.sh
           EOF
