@@ -8,7 +8,6 @@ import (
 	"log"
 
 	"github.com/ipfs/go-cid"
-	"github.com/multiformats/go-multiaddr"
 	"github.com/textileio/powergate/api/client"
 	pow "github.com/textileio/powergate/api/client"
 	"github.com/textileio/powergate/ffs"
@@ -21,12 +20,7 @@ var (
 
 // FFSCreate return an instance of pow
 func FFSCreate() (string, string, error) {
-	ma, err := multiaddr.NewMultiaddr("/ip4/127.0.0.1/tcp/5002")
-	if err != nil {
-		// log error
-		return "", "", err
-	}
-	client, err := pow.NewClient(ma, grpc.WithInsecure())
+	client, err := pow.NewClient("127.0.0.1:5002", grpc.WithInsecure())
 	if err != nil {
 		// log error
 		return "", "", err
@@ -46,23 +40,20 @@ func FFSCreate() (string, string, error) {
 
 // FFSAuthenticate return a authenticate client
 func FFSAuthenticate(token, address string) *pow.Client {
-	ma, err := multiaddr.NewMultiaddr(address)
-	checkErr(err)
-
 	var opts []grpc.DialOption
 	auth := pow.TokenAuth{}
 	opts = append(opts, grpc.WithPerRPCCredentials(auth))
-	client, err := pow.NewClient(ma, grpc.WithInsecure(), grpc.WithPerRPCCredentials(auth))
+	client, err := pow.NewClient(address, grpc.WithPerRPCCredentials(auth))
 	checkErr(err)
 	return client
 }
 
 // FFSDefaultConfig show the default config
-func FFSDefaultConfig(token string) {
+func FFSDefaultConfig(token, addr string) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*60)
 	defer cancel()
-	client := FFSAuthenticate(token, "/ip4/127.0.0.1/tcp/5002")
-	conf, err := client.FFS.DefaultConfig(authCtx(ctx, token))
+	client := FFSAuthenticate(token, addr)
+	conf, err := client.FFS.DefaultStorageConfig(authCtx(ctx, token))
 	checkErr(err)
 	log.Println(fmt.Sprintf("Configuration %v", conf))
 }
@@ -77,11 +68,12 @@ func FFSPush(cidHash, token, address string) string {
 	c, err := cid.Parse(cidHash)
 	checkErr(err)
 
-	options := []client.PushConfigOption{}
-	config := ffs.CidConfig{Cid: c}
-	options = append(options, client.WithCidConfig(config))
+	options := []client.PushStorageConfigOption{}
+	config := ffs.StorageConfig{}
+	options = append(options, client.WithOverride(true))
+	options = append(options, client.WithStorageConfig(config))
 
-	jid, err := fClient.FFS.PushConfig(authCtx(ctx, token), c, options...)
+	jid, err := fClient.FFS.PushStorageConfig(authCtx(ctx, token), c, options...)
 	checkErr(err)
 	return jid.String()
 }

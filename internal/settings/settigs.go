@@ -17,6 +17,7 @@ type App struct {
 	LivepeerBroadcaster string
 	LivepeerToken       string
 	LivepeerMode        string
+	HostedPowergateAddr string
 
 	RuntimeRootPath string
 
