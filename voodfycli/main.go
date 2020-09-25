@@ -127,8 +127,8 @@ func main() {
 			Usage:   "show the default config at Filecoin",
 			Action: func(c *cli.Context) error {
 				_, token, _ := powergate.FFSCreate()
-				log.Println("token", token)
-				powergate.FFSDefaultConfig(token)
+				addr := "127.0.0.1:5002"
+				powergate.FFSDefaultConfig(token, addr)
 				return nil
 			},
 		},

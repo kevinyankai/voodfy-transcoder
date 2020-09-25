@@ -42,7 +42,7 @@ services:
       - PRE_CREATE_DB="metrics"
 
   powergate:
-    image: textile/powergate:latest
+    image: textile/powergate:v0.6.1
     ports:
       - 8889:8889
       - 8888:8888
@@ -59,7 +59,7 @@ services:
     restart: unless-stopped
 
   lotus:
-    image: textile/lotus-devnet:v0.4.0
+    image: textile/lotus-devnet:latest
     ports:
       - 7777:7777
     environment:

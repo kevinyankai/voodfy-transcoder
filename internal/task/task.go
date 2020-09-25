@@ -13,6 +13,7 @@ import (
 	ipfsManager "github.com/Voodfy/voodfy-transcoder/pkg/ipfs"
 	"github.com/Voodfy/voodfy-transcoder/pkg/livepeerclient"
 	"github.com/Voodfy/voodfy-transcoder/pkg/logging"
+	"github.com/Voodfy/voodfy-transcoder/pkg/powergate"
 )
 
 var cl = ffmpeg.NewClient()
@@ -103,6 +104,30 @@ func SendDirToIPFSTask(args ...string) (string, error) {
 	}
 	directory.Save()
 	return cid, err
+}
+
+// SendDirToFilecoinTask send final directory to filecoin
+func SendDirToFilecoinTask(args ...string) ([]string, error) {
+	var jids []string
+	mg, err := ipfsManager.NewManager(settings.IPFSSetting.Gateway)
+	logging.Info("Gateway ~>", mg.NodeAddress())
+
+	if err != nil {
+		utils.SendError("ipfsManager.NewManager", err)
+	}
+
+	// send the directory to ipfs
+	cid, err := mg.AddDir(args[0])
+
+	if err != nil {
+		utils.SendError("mg.AddDir", err)
+	}
+
+	cids, err := mg.List(cid)
+	for _, c := range cids {
+		jids = append(jids, powergate.FFSPush(c.Hash, args[1], settings.AppSetting.HostedPowergateAddr))
+	}
+	return jids, err
 }
 
 // LongRunningTask ...
