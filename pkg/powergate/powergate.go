@@ -10,7 +10,6 @@ import (
 	"github.com/ipfs/go-cid"
 	"github.com/textileio/powergate/api/client"
 	pow "github.com/textileio/powergate/api/client"
-	"github.com/textileio/powergate/ffs"
 	"google.golang.org/grpc"
 )
 
@@ -69,9 +68,7 @@ func FFSPush(cidHash, token, address string) string {
 	checkErr(err)
 
 	options := []client.PushStorageConfigOption{}
-	config := ffs.StorageConfig{}
 	options = append(options, client.WithOverride(true))
-	options = append(options, client.WithStorageConfig(config))
 
 	jid, err := fClient.FFS.PushStorageConfig(authCtx(ctx, token), c, options...)
 	checkErr(err)
