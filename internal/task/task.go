@@ -81,6 +81,15 @@ func SendDirToIPFSTask(args ...string) (string, error) {
 		utils.SendError("ipfsManager.NewManager", err)
 	}
 
+	ticker := time.NewTicker(settings.AppSetting.DelayWaitingIPFS * time.Second)
+	select {
+	case _ = <-ticker.C:
+		if _, err := os.Stat(args[0]); !os.IsNotExist(err) {
+			ticker.Stop()
+			break
+		}
+	}
+
 	// send the directory to ipfs
 	cid, err := mg.AddDir(args[0])
 

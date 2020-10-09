@@ -18,6 +18,7 @@ type App struct {
 	LivepeerToken       string
 	LivepeerMode        string
 	HostedPowergateAddr string
+	DelayWaitingIPFS    time.Duration
 
 	RuntimeRootPath string
 
