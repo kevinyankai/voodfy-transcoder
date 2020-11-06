@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 
+	"github.com/Voodfy/voodfy-transcoder/internal/settings"
 	"github.com/Voodfy/voodfy-transcoder/pkg/logging"
 	"gopkg.in/resty.v1"
 )
@@ -33,7 +34,7 @@ func NewClient(baseURL, orchWebhookURL, orchAddr string) *Client {
 
 // PullToRemote the src file to be transcoded on livepeer
 func (c *Client) PullToRemote(src, dst, profile, id string) bool {
-	cmd := exec.Command("livepeer", "-pull", src, "-recordingDir", dst, "-transcodingOptions", profile, "-orchWebhookUrl", c.OrchWebhookURL, "-streamName", id, "-v", "99")
+	cmd := exec.Command("livepeer", "-pull", src, "-recordingDir", dst, "-transcodingOptions", profile, "-apiKey", settings.AppSetting.LivepeerToken, "-streamName", id, "-v", "99")
 	var stdBuffer bytes.Buffer
 	mw := io.MultiWriter(os.Stdout, &stdBuffer)
 	cmd.Stdout = mw
