@@ -77,6 +77,8 @@ func RenditionTask(args ...string) error {
 // SendDirToIPFSTask send final directory to ipfs
 func SendDirToIPFSTask(args ...string) (string, error) {
 	var idx int
+	idx = 2
+
 	mg, err := ipfsManager.NewManager(settings.IPFSSetting.Gateway)
 	logging.Info("Gateway ~>", mg.NodeAddress())
 
@@ -100,7 +102,6 @@ func SendDirToIPFSTask(args ...string) (string, error) {
 	for _, entry := range entries {
 		extension := filepath.Ext(entry.Name())
 		if extension == ".mp4" {
-			idx = 2
 			sourcePath := filepath.Join(args[0], entry.Name())
 			newPath := filepath.Join(args[0], fmt.Sprintf("%s_v%d.mp4", args[1], idx))
 			err := os.Rename(sourcePath, newPath)
