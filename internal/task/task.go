@@ -2,8 +2,10 @@ package task
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/Voodfy/voodfy-transcoder/internal/ffmpeg"
@@ -74,6 +76,7 @@ func RenditionTask(args ...string) error {
 
 // SendDirToIPFSTask send final directory to ipfs
 func SendDirToIPFSTask(args ...string) (string, error) {
+	var idx int
 	mg, err := ipfsManager.NewManager(settings.IPFSSetting.Gateway)
 	logging.Info("Gateway ~>", mg.NodeAddress())
 
@@ -87,6 +90,24 @@ func SendDirToIPFSTask(args ...string) (string, error) {
 		if _, err := os.Stat(args[0]); !os.IsNotExist(err) {
 			ticker.Stop()
 			break
+		}
+	}
+
+	entries, err := ioutil.ReadDir(args[0])
+	if err != nil {
+		utils.SendError("ioutil.ReadDir", err)
+	}
+	for _, entry := range entries {
+		extension := filepath.Ext(entry.Name())
+		if extension == ".mp4" {
+			idx = 3
+			sourcePath := filepath.Join(args[0], entry.Name())
+			newPath := filepath.Join(args[0], fmt.Sprintf("%s_v%d.mp4", args[1], idx))
+			err := os.Rename(sourcePath, newPath)
+			if err != nil {
+				utils.SendError("os.Rename", err)
+			}
+			idx++
 		}
 	}
 
