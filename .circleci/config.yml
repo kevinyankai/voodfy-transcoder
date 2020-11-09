@@ -30,9 +30,9 @@ jobs:
           if [ "${CIRCLE_BRANCH}" == "master" ]; then
           go build -o main .
 
-          rsync -avzh -e "ssh -o StrictHostKeyChecking=no" main devops@45.58.126.146:/home/devops/apps/voodfy/transcoder/src/
+          rsync -avzh -e "ssh -o StrictHostKeyChecking=no" main devops@34.237.124.65:/home/devops/apps/voodfy/transcoder/src/
 
-          ssh -o StrictHostKeyChecking=no devops@45.58.126.146 << EOF
+          ssh -o StrictHostKeyChecking=no devops@34.237.124.65 << EOF
           cd /home/devops/apps/voodfy/transcoder/src/ && mv main transcoder && cd /home/devops/
           sh deploy_voodfy_transcoder.sh
           EOF
