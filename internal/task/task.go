@@ -147,14 +147,7 @@ func SendDirToFilecoinTask(args ...string) ([]string, error) {
 		utils.SendError("ipfsManager.NewManager", err)
 	}
 
-	// send the directory to ipfs
-	cid, err := mg.AddDir(args[0])
-
-	if err != nil {
-		utils.SendError("mg.AddDir", err)
-	}
-
-	cids, err := mg.List(cid)
+	cids, err := mg.List(args[0])
 	for _, c := range cids {
 		jids = append(jids, powergate.FFSPush(c.Hash, args[1], settings.AppSetting.HostedPowergateAddr))
 	}
