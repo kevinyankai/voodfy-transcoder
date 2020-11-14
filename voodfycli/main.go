@@ -122,22 +122,13 @@ func main() {
 			},
 		},
 		{
-			Name:    "store_config",
+			Name:    "storage_config",
 			Aliases: []string{"sc"},
 			Usage:   "show the default config at Filecoin",
 			Action: func(c *cli.Context) error {
 				_, token, _ := powergate.FFSCreate()
 				addr := "127.0.0.1:5002"
 				powergate.FFSDefaultConfig(token, addr)
-				return nil
-			},
-		},
-		{
-			Name:    "store",
-			Aliases: []string{"st"},
-			Usage:   "store the resources on Filecoin",
-			Action: func(c *cli.Context) error {
-				task.ManagerPowergate(c.Args().Get(0))
 				return nil
 			},
 		},

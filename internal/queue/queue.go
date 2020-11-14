@@ -14,6 +14,20 @@ import (
 	"github.com/Voodfy/voodfy-transcoder/pkg/logging"
 )
 
+func startThumbsPreviewServer() (*machinery.Server, error) {
+	var cnf = &config.Config{
+		Broker:        fmt.Sprintf("redis://%s/0", settings.RedisSetting.Host),
+		DefaultQueue:  "thumbspreview_tasks",
+		ResultBackend: fmt.Sprintf("redis://%s/1", settings.RedisSetting.Host),
+	}
+	server, _ := machinery.NewServer(cnf)
+
+	// Register tasks
+	tasks := task.Get()
+
+	return server, server.RegisterTasks(tasks)
+}
+
 func startServer() (*machinery.Server, error) {
 	var cnf = &config.Config{
 		Broker:        fmt.Sprintf("redis://%s/0", settings.RedisSetting.Host),
@@ -43,6 +57,53 @@ func NewWorker() *machinery.Worker {
 	// The second argument is a consumer tag
 	// Ideally, each worker should have a unique tag (worker1, worker2 etc)
 	worker := server.NewWorker(consumerTag, 0)
+	influx := influxdbclient.NewClient()
+
+	// Here we inject some custom code for error handling,
+	// start and end of task hooks, useful for metrics for example.
+	errorhandler := func(err error) {
+		utils.SendError("I am an error handler:", err)
+	}
+
+	pretaskhandler := func(signature *tasks.Signature) {
+		start = time.Now()
+		logging.Info(fmt.Sprintf("I am a start of task handler for: %s", signature.Name))
+	}
+
+	posttaskhandler := func(signature *tasks.Signature) {
+		finished = time.Since(start).Seconds()
+
+		if len(signature.Args) != 0 {
+			for _, arg := range signature.Args {
+				if arg.Name == "id" {
+					influx.Send(arg.Value, signature.Name, fmt.Sprintf("%f", finished))
+				}
+			}
+		}
+
+		logging.Info(fmt.Sprintf("I am an end of task handler for: %s", signature.Name))
+	}
+
+	worker.SetPostTaskHandler(posttaskhandler)
+	worker.SetErrorHandler(errorhandler)
+	worker.SetPreTaskHandler(pretaskhandler)
+
+	return worker
+}
+
+// NewThumbsPreviewWorker return a instance of a worker
+func NewThumbsPreviewWorker() *machinery.Worker {
+	var start time.Time
+	var finished float64
+
+	server, err := startThumbsPreviewServer()
+	if err != nil {
+		utils.SendError("startServer", err)
+	}
+
+	// The second argument is a consumer tag
+	// Ideally, each worker should have a unique tag (worker1, worker2 etc)
+	worker := server.NewWorker("thumbspreview_main", 0)
 	influx := influxdbclient.NewClient()
 
 	// Here we inject some custom code for error handling,
