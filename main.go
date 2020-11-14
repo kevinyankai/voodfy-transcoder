@@ -31,8 +31,12 @@ func init() {
 func main() {
 	wrk := queue.NewWorker()
 	wrkThumbs := queue.NewThumbsPreviewWorker()
-	if settings.AppSetting.QueueEnabled {
+
+	if settings.AppSetting.ThumbspreviewEnabled {
 		go wrkThumbs.Launch()
+	}
+
+	if settings.AppSetting.QueueEnabled {
 		wrk.Launch()
 	}
 }

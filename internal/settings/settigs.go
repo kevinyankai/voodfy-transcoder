@@ -11,14 +11,15 @@ var cfg *ini.File
 
 // App struct used to bind app
 type App struct {
-	Tag                 string
-	QueueEnabled        bool
-	SentryDNS           string
-	LivepeerBroadcaster string
-	LivepeerToken       string
-	LivepeerMode        string
-	HostedPowergateAddr string
-	DelayWaitingIPFS    time.Duration
+	Tag                  string
+	QueueEnabled         bool
+	ThumbspreviewEnabled bool
+	SentryDNS            string
+	LivepeerBroadcaster  string
+	LivepeerToken        string
+	LivepeerMode         string
+	HostedPowergateAddr  string
+	DelayWaitingIPFS     time.Duration
 
 	RuntimeRootPath string
 
