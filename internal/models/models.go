@@ -15,7 +15,8 @@ type Models struct {
 // InitDB return instance redis client
 func InitDB() {
 	redis := redis.NewClient(&redis.Options{
-		Addr: settings.RedisSetting.Host,
+		Addr:     settings.RedisSetting.Host,
+		Password: settings.RedisSetting.Password,
 	})
 	db = &Models{Redis: redis}
 }

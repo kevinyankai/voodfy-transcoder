@@ -53,6 +53,7 @@ var IPFSSetting = &IPFS{}
 // Redis struct used to bind redis
 type Redis struct {
 	Host                   string
+	Password               string
 	TranscoderBrokerURL    string
 	TranscoderResultURL    string
 	ThumbsPreviewBrokerURL string
