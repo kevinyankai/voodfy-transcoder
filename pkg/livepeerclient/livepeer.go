@@ -20,13 +20,11 @@ type Client struct {
 }
 
 // NewClient func to return a instance from livepeer client
-func NewClient(baseURL, orchWebhookURL, orchAddr string) *Client {
+func NewClient() *Client {
 	client := resty.New()
 
 	livepeer := &Client{
-		Resty:          client,
-		OrchWebhookURL: orchWebhookURL,
-		OrchAddr:       orchAddr,
+		Resty: client,
 	}
 
 	return livepeer

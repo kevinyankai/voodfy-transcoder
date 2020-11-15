@@ -61,15 +61,9 @@ func FallbackRenditionTask(args ...string) error {
 
 // RenditionTask will send and receive the chunck transcoded by livepeer
 func RenditionTask(args ...string) error {
-	client := livepeerclient.NewClient("", args[5], args[6])
+	client := livepeerclient.NewClient()
 
-	if args[7] == "remote" {
-		client.PullToRemote(args[0], args[1], args[2], args[3])
-	} else {
-		client.PullToLocal(args[0], args[1], args[2], args[3])
-	}
-
-	os.Remove(args[4])
+	client.PullToRemote(args[0], args[1], args[2], args[3])
 
 	return nil
 }

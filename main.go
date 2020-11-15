@@ -33,7 +33,7 @@ func main() {
 	wrkThumbs := queue.NewThumbsPreviewWorker()
 
 	if settings.AppSetting.ThumbspreviewEnabled {
-		go wrkThumbs.Launch()
+		wrkThumbs.Launch()
 	}
 
 	if settings.AppSetting.QueueEnabled {
