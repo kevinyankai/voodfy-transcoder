@@ -52,11 +52,13 @@ var IPFSSetting = &IPFS{}
 
 // Redis struct used to bind redis
 type Redis struct {
-	Host        string
-	Password    string
-	MaxIdle     int
-	MaxActive   int
-	IdleTimeout time.Duration
+	TranscoderBrokerURL    string
+	TranscoderResultURL    string
+	ThumbsPreviewBrokerURL string
+	ThumbsPreviewResultURL string
+	MaxIdle                int
+	MaxActive              int
+	IdleTimeout            time.Duration
 }
 
 // RedisSetting instance  from redis

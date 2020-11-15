@@ -16,9 +16,11 @@ import (
 
 func startThumbsPreviewServer() (*machinery.Server, error) {
 	var cnf = &config.Config{
-		Broker:        fmt.Sprintf("redis://%s/0", settings.RedisSetting.Host),
-		DefaultQueue:  "thumbspreview_tasks",
-		ResultBackend: fmt.Sprintf("redis://%s/1", settings.RedisSetting.Host),
+		Broker: fmt.Sprintf(
+			"%s", settings.RedisSetting.ThumbsPreviewBrokerURL),
+		DefaultQueue: "thumbspreview_tasks",
+		ResultBackend: fmt.Sprintf(
+			"%s", settings.RedisSetting.ThumbsPreviewResultURL),
 	}
 	server, _ := machinery.NewServer(cnf)
 
@@ -30,9 +32,11 @@ func startThumbsPreviewServer() (*machinery.Server, error) {
 
 func startServer() (*machinery.Server, error) {
 	var cnf = &config.Config{
-		Broker:        fmt.Sprintf("redis://%s/0", settings.RedisSetting.Host),
-		DefaultQueue:  "transcoder_tasks",
-		ResultBackend: fmt.Sprintf("redis://%s/1", settings.RedisSetting.Host),
+		Broker: fmt.Sprintf(
+			"%s", settings.RedisSetting.TranscoderBrokerURL),
+		DefaultQueue: "transcoder_tasks",
+		ResultBackend: fmt.Sprintf(
+			"%s", settings.RedisSetting.TranscoderResultURL),
 	}
 	server, _ := machinery.NewServer(cnf)
 
