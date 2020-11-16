@@ -31,7 +31,7 @@ type Commands interface {
 	Transcode480p(string, string) bool
 	Transcode720p(string, string) bool
 	Transcode1080p(string, string) bool
-	MkvToMp4(string, string) bool
+	ConvertToMp4(string, string) bool
 	ThumbsPreviewGenerator(string, string, string) bool
 	VTTGenerator(string, string, string) bool
 	ExtractAudioFromMp4(string, string) bool
@@ -77,8 +77,8 @@ func Run(cmd Commands, fnc string, args ...string) bool {
 		cmd.Transcode720p(args[0], args[1])
 	case "1080p":
 		cmd.Transcode1080p(args[0], args[1])
-	case "mkvToMp4":
-		cmd.MkvToMp4(args[0], args[1])
+	case "convertToMp4":
+		cmd.ConvertToMp4(args[0], args[1])
 	}
 	return false
 }
@@ -190,8 +190,8 @@ func (c *Client) GenerateWebpFromFrameVideo(filename, dstFile, duration string) 
 	return true
 }
 
-// MkvToMp4 convert mkv to mp4
-func (c *Client) MkvToMp4(filename, dstFile string) bool {
+// ConvertToMp4 convert mkv to mp4
+func (c *Client) ConvertToMp4(filename, dstFile string) bool {
 	var stdBuffer bytes.Buffer
 
 	cmd := exec.Command("ffmpeg", "-hide_banner", "-y", "-i", filename, "-movflags", "faststart", "-c", "copy", dstFile)

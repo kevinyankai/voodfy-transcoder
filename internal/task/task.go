@@ -20,6 +20,13 @@ import (
 
 var cl = ffmpeg.NewClient()
 
+// ConvertToMp4Task ...
+func ConvertToMp4Task(args ...string) error {
+	ffmpeg.Run(&cl, "convertToMp4", args...)
+
+	return nil
+}
+
 // FFprobeTask ...
 func FFprobeTask(args ...string) error {
 	ffmpeg.Run(&cl, "FFprobe", args...)

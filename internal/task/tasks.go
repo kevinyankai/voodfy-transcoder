@@ -26,6 +26,7 @@ func Get() map[string]interface{} {
 		"sendDirToIPFSTask":               SendDirToIPFSTask,
 		"sendDirToFilecoinTask":           SendDirToFilecoinTask,
 		"ffprobeTask":                     FFprobeTask,
+		"convertToMp4Task":                ConvertToMp4Task,
 	}
 }
 
