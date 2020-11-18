@@ -115,13 +115,13 @@ func (c *Client) RemoveAudioFromMP4(filename, dstFile string) bool {
 
 	err := cmd.Start()
 	if err != nil {
-		utils.SendError(fmt.Sprintf("RemoveAudioFromMP4-cmd.Start() failed with '%s'\n", err), err)
+		utils.SendError(fmt.Sprintf("%s-RemoveAudioFromMP4-cmd.Start() failed with '%s'\n", filename, err), err)
 		return false
 	}
 
 	err = cmd.Wait()
 	if err != nil {
-		utils.SendError(fmt.Sprintf("RemoveAudioFromMP4-cmd.Run() failed with %s\n", err), err)
+		utils.SendError(fmt.Sprintf("%s-RemoveAudioFromMP4-cmd.Start() failed with '%s'\n", filename, err), err)
 		return false
 	}
 	return true
@@ -146,13 +146,13 @@ func (c *Client) GenerateImageFromFrameVideo(filename, dstFile, duration string)
 
 	err = cmd.Start()
 	if err != nil {
-		utils.SendError(fmt.Sprintf("GenerateImageFromFrameVideo-cmd.Start() failed with '%s'\n", err), err)
+		utils.SendError(fmt.Sprintf("%s-GenerateImageFromFrameVideo-cmd.Start() failed with '%s'\n", filename, err), err)
 		return false
 	}
 
 	err = cmd.Wait()
 	if err != nil {
-		utils.SendError(fmt.Sprintf("GenerateImageFromFrameVideo-cmd.Run() failed with %s\n", err), err)
+		utils.SendError(fmt.Sprintf("%s-GenerateImageFromFrameVideo-cmd.Start() failed with '%s'\n", filename, err), err)
 		return false
 	}
 	return true
@@ -176,13 +176,13 @@ func (c *Client) GenerateWebpFromFrameVideo(filename, dstFile, duration string) 
 
 	err = cmd.Start()
 	if err != nil {
-		log.Println(fmt.Sprintf("GenerateWebpFromFrameVideo-cmd.Start() failed with '%s'\n", err), err)
+		utils.SendError(fmt.Sprintf("%s-ConvertToMp4-cmd.Start() failed with '%s'\n", filename, err), err)
 		return false
 	}
 
 	err = cmd.Wait()
 	if err != nil {
-		log.Println(fmt.Sprintf("GenerateWebpFromFrameVideo-cmd.Run() failed with %s\n", err), err)
+		utils.SendError(fmt.Sprintf("%s-ConvertToMp4-cmd.Start() failed with '%s'\n", filename, err), err)
 		return false
 	}
 	log.Println("finish 240p ~> ", filename)
@@ -202,13 +202,13 @@ func (c *Client) ConvertToMp4(filename, dstFile string) bool {
 	err := cmd.Start()
 
 	if err != nil {
-		utils.SendError(fmt.Sprintf("cmd.Start() failed with '%s'\n", err), err)
+		utils.SendError(fmt.Sprintf("%s-ConvertToMp4-cmd.Start() failed with '%s'\n", filename, err), err)
 		return false
 	}
 
 	err = cmd.Wait()
 	if err != nil {
-		utils.SendError(fmt.Sprintf("cmd.Run() failed with %s\n", err), err)
+		utils.SendError(fmt.Sprintf("%s-ConvertToMp4-cmd.Start() failed with '%s'\n", filename, err), err)
 		return false
 	}
 
@@ -227,13 +227,13 @@ func (c *Client) Transcode90p(filename, dstFile string) bool {
 	err := cmd.Start()
 
 	if err != nil {
-		utils.SendError(fmt.Sprintf("cmd.Start() failed with '%s'\n", err), err)
+		utils.SendError(fmt.Sprintf("%s-Transcode90p-cmd.Start() failed with '%s'\n", filename, err), err)
 		return false
 	}
 
 	err = cmd.Wait()
 	if err != nil {
-		utils.SendError(fmt.Sprintf("cmd.Run() failed with %s\n", err), err)
+		utils.SendError(fmt.Sprintf("%s-Transcode90p-cmd.Start() failed with '%s'\n", filename, err), err)
 		return false
 	}
 
@@ -252,13 +252,13 @@ func (c *Client) Transcode144p(filename, dstFile string) bool {
 	err := cmd.Start()
 
 	if err != nil {
-		utils.SendError(fmt.Sprintf("cmd.Start() failed with '%s'\n", err), err)
+		utils.SendError(fmt.Sprintf("%s-Transcode144p-cmd.Start() failed with '%s'\n", filename, err), err)
 		return false
 	}
 
 	err = cmd.Wait()
 	if err != nil {
-		utils.SendError(fmt.Sprintf("cmd.Run() failed with %s\n", err), err)
+		utils.SendError(fmt.Sprintf("%s-Transcode144p-cmd.Start() failed with '%s'\n", filename, err), err)
 		return false
 	}
 
@@ -275,13 +275,13 @@ func (c *Client) Transcode240p(filename, dstFile string) bool {
 
 	err := cmd.Start()
 	if err != nil {
-		utils.SendError(fmt.Sprintf("Transcode240p-cmd.Start() failed with '%s'\n", err), err)
+		utils.SendError(fmt.Sprintf("%s-Transcode240p-cmd.Start() failed with '%s'\n", filename, err), err)
 		return false
 	}
 
 	err = cmd.Wait()
 	if err != nil {
-		utils.SendError(fmt.Sprintf("Transcode240p-cmd.Run() failed with %s\n", err), err)
+		utils.SendError(fmt.Sprintf("%s-Transcode240p-cmd.Start() failed with '%s'\n", filename, err), err)
 		return false
 	}
 	return true
@@ -296,13 +296,13 @@ func (c *Client) Transcode360p(filename, dstFile string) bool {
 	cmd.Stderr = mw
 	err := cmd.Start()
 	if err != nil {
-		utils.SendError(fmt.Sprintf("Transcode360p-cmd.Start() failed with '%s'\n", err), err)
+		utils.SendError(fmt.Sprintf("%s-Transcode360p-cmd.Start() failed with '%s'\n", filename, err), err)
 		return false
 	}
 
 	err = cmd.Wait()
 	if err != nil {
-		utils.SendError(fmt.Sprintf("Transcode360p-cmd.Run() failed with %s\n", err), err)
+		utils.SendError(fmt.Sprintf("%s-Transcode360p-cmd.Start() failed with '%s'\n", filename, err), err)
 		return false
 	}
 	return true
@@ -319,13 +319,13 @@ func (c *Client) Transcode480p(filename, dstFile string) bool {
 
 	err := cmd.Start()
 	if err != nil {
-		utils.SendError(fmt.Sprintf("Transcode480p-cmd.Start() failed with '%s'\n", err), err)
+		utils.SendError(fmt.Sprintf("%s-Transcode480p-cmd.Start() failed with '%s'\n", filename, err), err)
 		return false
 	}
 
 	err = cmd.Wait()
 	if err != nil {
-		utils.SendError(fmt.Sprintf("Transcode480p-cmd.Run() failed with %s\n", err), err)
+		utils.SendError(fmt.Sprintf("%s-Transcode480p-cmd.Start() failed with '%s'\n", filename, err), err)
 		return false
 	}
 
@@ -341,13 +341,13 @@ func (c *Client) Transcode720p(filename, dstFile string) bool {
 	cmd.Stderr = mw
 	err := cmd.Start()
 	if err != nil {
-		utils.SendError(fmt.Sprintf("Transcode720p-cmd.Start() failed with '%s'\n", err), err)
+		utils.SendError(fmt.Sprintf("%s-Transcode720p-cmd.Start() failed with '%s'\n", filename, err), err)
 		return false
 	}
 
 	err = cmd.Wait()
 	if err != nil {
-		utils.SendError(fmt.Sprintf("Transcode720p-cmd.Run() failed with %s\n", err), err)
+		utils.SendError(fmt.Sprintf("%s-Transcode720p-cmd.Start() failed with '%s'\n", filename, err), err)
 		return false
 	}
 	return true
@@ -365,13 +365,13 @@ func (c *Client) Transcode1080p(filename, dstFile string) bool {
 	err := cmd.Start()
 
 	if err != nil {
-		utils.SendError(fmt.Sprintf("Transcode1080p-cmd.Start() failed with '%s'\n", err), err)
+		utils.SendError(fmt.Sprintf("%s-Transcode1080p-cmd.Start() failed with '%s'\n", filename, err), err)
 		return false
 	}
 
 	err = cmd.Wait()
 	if err != nil {
-		utils.SendError(fmt.Sprintf("Transcode1080p-cmd.Run() failed with %s\n", err), err)
+		utils.SendError(fmt.Sprintf("%s-Transcode1080p-cmd.Start() failed with '%s'\n", filename, err), err)
 		return false
 	}
 	return true
@@ -382,7 +382,8 @@ func (c *Client) ThumbsPreviewGenerator(filename, dstFile, duration string) bool
 	var err error
 	d, err := strconv.ParseFloat(duration, 64)
 	if err != nil {
-		utils.SendError(fmt.Sprintf("ThumnailPreviewGenerator-err-%s", filename), err)
+		utils.SendError(fmt.Sprintf("%s-RemoveAudioFromMP4-cmd.Start() failed with '%s'\n", filename, err), err)
+		return false
 	}
 	columnsTotal := int(d) / 5 / 2
 	cmd := exec.Command("thumbsgenerator", filename, "5", "126", "73", fmt.Sprintf("%d", columnsTotal), fmt.Sprintf("%s/thumbspreview.png", dstFile))
@@ -395,13 +396,13 @@ func (c *Client) ThumbsPreviewGenerator(filename, dstFile, duration string) bool
 	err = cmd.Start()
 
 	if err != nil {
-		utils.SendError(fmt.Sprintf("ThumbnailPreviewGenerator-cmd.Start() failed with '%s'\n", err), err)
+		utils.SendError(fmt.Sprintf("%s-ThumbsPreviewGenerator-cmd.Start() failed with '%s'\n", filename, err), err)
 		return false
 	}
 
 	err = cmd.Wait()
 	if err != nil {
-		utils.SendError(fmt.Sprintf("ThumbnailPreviewGenerator-cmd.Run() failed with %s\n", err), err)
+		utils.SendError(fmt.Sprintf("%s-ThumbsPreviewGenerator-cmd.Start() failed with '%s'\n", filename, err), err)
 		return false
 	}
 	return true
@@ -419,13 +420,13 @@ func (c *Client) VTTGenerator(filename, dstFile, language string) bool {
 	err := cmd.Start()
 
 	if err != nil {
-		utils.SendError(fmt.Sprintf("VTTGenerator-cmd.Start() failed with '%s'\n", err), err)
+		utils.SendError(fmt.Sprintf("%s-VTTGenerator.Start() failed with '%s'\n", filename, err), err)
 		return false
 	}
 
 	err = cmd.Wait()
 	if err != nil {
-		utils.SendError(fmt.Sprintf("VTTGenerator-cmd.Run() failed with %s\n", err), err)
+		utils.SendError(fmt.Sprintf("%s-VTTGenerator-cmd.Start() failed with '%s'\n", filename, err), err)
 		return false
 	}
 	return true
@@ -436,13 +437,13 @@ func (c *Client) ExtractAudioFromMp4(filename, dstFile string) bool {
 	cmd := exec.Command("ffmpeg", "-hide_banner", "-y", "-i", filename, "-vn", "-acodec", "copy", dstFile)
 	err := cmd.Start()
 	if err != nil {
-		utils.SendError(fmt.Sprintf("ExtractAudioFromMp4-cmd.Start() failed with '%s'\n", err), err)
+		utils.SendError(fmt.Sprintf("%s-ExtractAudioFromMp4-cmd.Start() failed with '%s'\n", filename, err), err)
 		return false
 	}
 
 	err = cmd.Wait()
 	if err != nil {
-		utils.SendError(fmt.Sprintf("ExtractAudioFromMp4-cmd.Run() failed with %s\n", err), err)
+		utils.SendError(fmt.Sprintf("%s-ExtractAudioFromMp4-cmd.Start() failed with '%s'\n", filename, err), err)
 		return false
 	}
 
