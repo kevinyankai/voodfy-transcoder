@@ -13,6 +13,7 @@ require (
 	github.com/google/uuid v1.1.1
 	github.com/influxdata/influxdb-client-go v1.3.0
 	github.com/ipfs/go-cid v0.0.7
+	github.com/ipfs/ipfs-cluster v0.13.0
 	github.com/libp2p/go-libp2p-metrics v0.1.0 // indirect
 	github.com/logrusorgru/aurora v0.0.0-20200102142835-e9ef32dff381
 	github.com/multiformats/go-multiaddr v0.3.1

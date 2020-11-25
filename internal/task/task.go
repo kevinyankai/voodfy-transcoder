@@ -1,6 +1,7 @@
 package task
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -16,6 +17,10 @@ import (
 	"github.com/Voodfy/voodfy-transcoder/pkg/livepeerclient"
 	"github.com/Voodfy/voodfy-transcoder/pkg/logging"
 	"github.com/Voodfy/voodfy-transcoder/pkg/powergate"
+	cid "github.com/ipfs/go-cid"
+	clusterApi "github.com/ipfs/ipfs-cluster/api"
+	client "github.com/ipfs/ipfs-cluster/api/rest/client"
+	multiaddr "github.com/multiformats/go-multiaddr"
 )
 
 var cl = ffmpeg.NewClient()
@@ -70,7 +75,11 @@ func FallbackRenditionTask(args ...string) error {
 func RenditionTask(args ...string) error {
 	client := livepeerclient.NewClient()
 
-	client.PullToRemote(args[0], args[1], args[2], args[3])
+	if settings.LivepeerSetting.Remote {
+		client.PullToRemote(args[0], args[1], args[2], args[3])
+	} else {
+		client.PullToLocal(args[0], args[1], args[2], args[3])
+	}
 
 	return nil
 }
@@ -133,9 +142,48 @@ func SendDirToIPFSTask(args ...string) (string, error) {
 			CID:  c.Hash,
 		}
 		directory.Resources = append(directory.Resources, resource)
+		mg.Pin(c.Hash)
 	}
 	directory.Save()
 	return cid, err
+}
+
+// PinDirToIPFSClusterTask send final directory to ipfs cluster
+func PinDirToIPFSClusterTask(args ...string) error {
+	var wait bool
+	cfg := &client.Config{}
+	addr, err := multiaddr.NewMultiaddr(settings.IPFSSetting.ClusterGateway)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	cfg.APIAddr = addr
+
+	c, err := client.NewDefaultClient(cfg)
+	if err != nil {
+		log.Fatal(err)
+	}
+	ci, err := cid.Decode(args[0])
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("pinning: %s\t%s\n", ci, args[1])
+	_, err = c.Pin(context.Background(), ci, clusterApi.PinOptions{Name: args[1]})
+	if err != nil {
+		log.Println(err)
+	}
+	if !wait {
+	}
+	_, err = client.WaitFor(context.Background(), c, client.StatusFilterParams{
+		Cid:       ci,
+		Target:    clusterApi.TrackerStatusPinned,
+		CheckFreq: 5000 * time.Millisecond,
+		Local:     false,
+	})
+	if err != nil {
+		log.Println(err)
+	}
+	return err
 }
 
 // SendDirToFilecoinTask send final directory to filecoin

@@ -15,9 +15,6 @@ type App struct {
 	QueueEnabled         bool
 	ThumbspreviewEnabled bool
 	SentryDNS            string
-	LivepeerBroadcaster  string
-	LivepeerToken        string
-	LivepeerMode         string
 	HostedPowergateAddr  string
 	DelayWaitingIPFS     time.Duration
 
@@ -43,12 +40,23 @@ var ServerSetting = &Server{}
 
 // IPFS struct used to bind store
 type IPFS struct {
-	Gateway string
-	Origin  string
+	Gateway        string
+	Origin         string
+	ClusterGateway string
 }
 
 // IPFSSetting instance from server
 var IPFSSetting = &IPFS{}
+
+// Livepeer struct used to bind livepeer
+type Livepeer struct {
+	Broadcaster string
+	Token       string
+	Remote      bool
+}
+
+// LivepeerSetting instance  from redis
+var LivepeerSetting = &Livepeer{}
 
 // Redis struct used to bind redis
 type Redis struct {
@@ -90,6 +98,7 @@ func Setup() {
 	mapTo("redis", RedisSetting)
 	mapTo("ipfs", IPFSSetting)
 	mapTo("influxdb", InfluxdbSetting)
+	mapTo("livepeer", LivepeerSetting)
 
 	RedisSetting.IdleTimeout = RedisSetting.IdleTimeout * time.Second
 }

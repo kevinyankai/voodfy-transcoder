@@ -42,7 +42,7 @@ services:
       - PRE_CREATE_DB="metrics"
 
   powergate:
-    image: textile/powergate:v0.6.1
+    image: textile/powergate:v1.2.1
     ports:
       - 8889:8889
       - 8888:8888

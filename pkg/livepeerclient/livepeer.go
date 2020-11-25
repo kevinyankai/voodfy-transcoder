@@ -32,7 +32,7 @@ func NewClient() *Client {
 
 // PullToRemote the src file to be transcoded on livepeer
 func (c *Client) PullToRemote(src, dst, profile, id string) bool {
-	cmd := exec.Command("livepeer", "-pull", src, "-recordingDir", dst, "-transcodingOptions", profile, "-apiKey", settings.AppSetting.LivepeerToken, "-streamName", id, "-v", "99")
+	cmd := exec.Command("livepeer", "-pull", src, "-recordingDir", dst, "-transcodingOptions", profile, "-apiKey", settings.LivepeerSetting.Token, "-streamName", id, "-v", "99")
 	var stdBuffer bytes.Buffer
 	mw := io.MultiWriter(os.Stdout, &stdBuffer)
 	cmd.Stdout = mw
@@ -53,7 +53,7 @@ func (c *Client) PullToRemote(src, dst, profile, id string) bool {
 
 // PullToLocal the src file to be transcoded on livepeer
 func (c *Client) PullToLocal(src, dst, profile, id string) bool {
-	cmd := exec.Command("livepeer", "-pull", src, "-recordingDir", dst, "-transcodingOptions", profile, "-orchAddr", c.OrchAddr, "-streamName", id, "-v", "99")
+	cmd := exec.Command("livepeer", "-pull", src, "-recordingDir", dst, "-transcodingOptions", profile, "-orchAddr", settings.LivepeerSetting.Broadcaster, "-streamName", id, "-v", "99")
 	var stdBuffer bytes.Buffer
 	mw := io.MultiWriter(os.Stdout, &stdBuffer)
 	cmd.Stdout = mw
