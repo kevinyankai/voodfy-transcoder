@@ -2,11 +2,8 @@ package task
 
 import (
 	"context"
-	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/Voodfy/voodfy-transcoder/internal/ffmpeg"
@@ -86,15 +83,10 @@ func RenditionTask(args ...string) error {
 
 // SendDirToIPFSTask send final directory to ipfs
 func SendDirToIPFSTask(args ...string) (string, error) {
-	var idx int
-	idx = 2
-
 	mg, err := ipfsManager.NewManager(settings.IPFSSetting.Gateway)
 	logging.Info("Gateway ~>", mg.NodeAddress())
 
-	if err != nil {
-		utils.SendError("ipfsManager.NewManager", err)
-	}
+	utils.SendError("ipfsManager.NewManager", err)
 
 	ticker := time.NewTicker(settings.AppSetting.DelayWaitingIPFS * time.Second)
 	select {
@@ -105,29 +97,17 @@ func SendDirToIPFSTask(args ...string) (string, error) {
 		}
 	}
 
-	entries, err := ioutil.ReadDir(args[0])
-	if err != nil {
-		utils.SendError("ioutil.ReadDir", err)
-	}
-	for _, entry := range entries {
-		extension := filepath.Ext(entry.Name())
-		if extension == ".mp4" {
-			sourcePath := filepath.Join(args[0], entry.Name())
-			newPath := filepath.Join(args[0], fmt.Sprintf("%s_v%d.mp4", args[1], idx))
-			err := os.Rename(sourcePath, newPath)
-			if err != nil {
-				utils.SendError("os.Rename", err)
-			}
-			idx++
-		}
+	utils.RenameToSendToIPFS(args[0], args[1])
+	send := utils.VerifyBeforeSendToIPFS(args[0])
+
+	if !send {
+		return "", err
 	}
 
 	// send the directory to ipfs
 	cid, err := mg.AddDir(args[0])
 
-	if err != nil {
-		utils.SendError("mg.AddDir", err)
-	}
+	utils.SendError("mg.AddDir", err)
 
 	directory := models.Directory{
 		CID: cid,
@@ -153,25 +133,16 @@ func PinDirToIPFSClusterTask(args ...string) error {
 	var wait bool
 	cfg := &client.Config{}
 	addr, err := multiaddr.NewMultiaddr(settings.IPFSSetting.ClusterGateway)
-	if err != nil {
-		log.Fatal(err)
-	}
+	log.Fatal(err)
 
 	cfg.APIAddr = addr
 
 	c, err := client.NewDefaultClient(cfg)
-	if err != nil {
-		log.Fatal(err)
-	}
+	utils.SendError("PinDirToIPFSClusterTask.client.NewDefaultClient", err)
 	ci, err := cid.Decode(args[0])
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("pinning: %s\t%s\n", ci, args[1])
+	utils.SendError("PinDirToIPFSClusterTask.cid.Decode", err)
 	_, err = c.Pin(context.Background(), ci, clusterApi.PinOptions{Name: args[1]})
-	if err != nil {
-		log.Println(err)
-	}
+	utils.SendError("PinDirToIPFSClusterTask.c.Pin", err)
 	if !wait {
 	}
 	_, err = client.WaitFor(context.Background(), c, client.StatusFilterParams{
@@ -180,9 +151,7 @@ func PinDirToIPFSClusterTask(args ...string) error {
 		CheckFreq: 5000 * time.Millisecond,
 		Local:     false,
 	})
-	if err != nil {
-		log.Println(err)
-	}
+	utils.SendError("PinDirToIPFSClusterTask.client.WaitFor", err)
 	return err
 }
 
@@ -190,11 +159,8 @@ func PinDirToIPFSClusterTask(args ...string) error {
 func SendDirToFilecoinTask(args ...string) ([]string, error) {
 	var jids []string
 	mg, err := ipfsManager.NewManager(settings.IPFSSetting.Gateway)
-	logging.Info("Gateway ~>", mg.NodeAddress())
 
-	if err != nil {
-		utils.SendError("ipfsManager.NewManager", err)
-	}
+	utils.SendError("ipfsManager.NewManager", err)
 
 	cids, err := mg.List(args[0])
 	for _, c := range cids {
@@ -206,7 +172,6 @@ func SendDirToFilecoinTask(args ...string) ([]string, error) {
 // LongRunningTask ...
 func LongRunningTask() error {
 	for i := 0; i < 10; i++ {
-		log.Println(fmt.Sprintf("%d", 10-i))
 		time.Sleep(1 * time.Second)
 	}
 	return nil
